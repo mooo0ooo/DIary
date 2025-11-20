@@ -113,7 +113,7 @@ function setup() {
 		let weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 		let wd = weekdays[now.getDay()];
 		
-		let timestamp = `${y}/${m}/${d} (${wd}) ${hh}:${mm}`;
+		let timestamp = `${y}.${m}.${d} (${wd}) ${hh}時${mm}分`;
         let serialStars = points.map(s => {
           let px = (s.pos && typeof s.pos.x !== "undefined") ? s.pos.x : 0;
           let py = (s.pos && typeof s.pos.y !== "undefined") ? s.pos.y : 0;
