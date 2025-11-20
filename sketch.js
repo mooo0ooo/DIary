@@ -55,7 +55,7 @@ let gutter = 12;
 let topOffset = 40;
 
 function preload() {
-	myFont = loadFont("assets/SourceCodePro-Regular.otf");
+	myFont = loadFont("assets/nicomoji_1.00.ttf");
   }
 
 function setup() {
