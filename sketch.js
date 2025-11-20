@@ -59,98 +59,120 @@ function preload() {
   }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight, WEBGL);
-  textFont(myFont);
-  textSize(16);
+    createCanvas(windowWidth, windowHeight, WEBGL);
+    textFont(myFont);
+    textSize(16);
 
-  let saved = localStorage.getItem("myConstellations");
-  if (saved) {
-    try {
-      allConstellations = JSON.parse(saved);
-    } catch (e) {
-      console.warn("localStorage JSON parse error, resetting storage.", e);
-      allConstellations = [];
-      localStorage.removeItem("myConstellations");
+    let saved = localStorage.getItem("myConstellations");
+    if (saved) {
+      try {
+        allConstellations = JSON.parse(saved);
+      } catch (e) {
+        console.warn("localStorage JSON parse error, resetting storage.", e);
+        allConstellations = [];
+        localStorage.removeItem("myConstellations");
+      }
     }
-  }
  
-  addButton = createButton("追加");
-  addButton.style('position', 'absolute');
-  addButton.style('z-index', '10');
+    addButton = createButton("追加");
+    addButton.style('position', 'absolute');
+    addButton.style('z-index', '10');
 
-  okButton = createButton("OK");
-  okButton.style('position', 'absolute');
-  okButton.style('z-index', '10');
+    okButton = createButton("OK");
+    okButton.style('position', 'absolute');
+    okButton.style('z-index', '10');
 
-  backButton = createButton("← 記録ページ");
-  backButton.style('position', 'absolute');
-  backButton.style('z-index', '10');
-  backButton.hide();
-
-  addButton.mousePressed(addPAD);
-
-  okButton.mousePressed(() => {
-    if (padValues.length > 0) {
-      prepareVisual();
-      
-      let now = new Date();
-      let timestamp = now.toLocaleString();
-      let serialStars = points.map(s => {
-        let px = (s.pos && typeof s.pos.x !== "undefined") ? s.pos.x : 0;
-        let py = (s.pos && typeof s.pos.y !== "undefined") ? s.pos.y : 0;
-        let pz = (s.pos && typeof s.pos.z !== "undefined") ? s.pos.z : 0;
-        return { pos: { x: px, y: py, z: pz }, emo: s.emo };
-      });
-
-      let newConstellation = {
-        stars: serialStars, 
-        created: timestamp
-      };
-      allConstellations.push(newConstellation);
-      localStorage.setItem("myConstellations", JSON.stringify(allConstellations));
-
-      state = "visual";
-      addButton.hide();
-      okButton.hide();
-      backButton.show();
-      visualStartTime = millis();
-    }
-  });
-
-  backButton.mousePressed(() => {
-    state = "select";
-    addButton.show();
-    okButton.show();
+    backButton = createButton("← 記録ページ");
+    backButton.style('position', 'absolute');
+    backButton.style('z-index', '10');
     backButton.hide();
-    selectedLabel = null;
-  });
+	
+    addButton.mousePressed(addPAD);
 
-  layoutDOMButtons();
+    okButton.mousePressed(() => {
+      if (padValues.length > 0) {
+        prepareVisual();
+      
+        let now = new Date();
+        let timestamp = now.toLocaleString();
+        let serialStars = points.map(s => {
+          let px = (s.pos && typeof s.pos.x !== "undefined") ? s.pos.x : 0;
+          let py = (s.pos && typeof s.pos.y !== "undefined") ? s.pos.y : 0;
+          let pz = (s.pos && typeof s.pos.z !== "undefined") ? s.pos.z : 0;
+          return { pos: { x: px, y: py, z: pz }, emo: s.emo };
+        });
 
-  computeBtnSize();
+        let newConstellation = {
+          stars: serialStars, 
+          created: timestamp
+        };
+        allConstellations.push(newConstellation);
+        localStorage.setItem("myConstellations", JSON.stringify(allConstellations));
 
-  // gallery
-  galleryButton = createButton("日記一覧");
-  galleryButton.style('position', 'absolute');
-  galleryButton.style('z-index', '10');
-  galleryButton.position(width - 130, 20);
-  galleryButton.mousePressed(() => {
-	  state = "gallery";
-	  addButton.hide();
-	  okButton.hide();
-	  backButton.show();
+        state = "visual";
+        addButton.hide();
+        okButton.hide();
+        backButton.show();
+        visualStartTime = millis();
+      }
+    });
 
-	  galleryStars = [];
+    backButton.mousePressed(() => {
+      state = "select";
+      addButton.show();
+      okButton.show();
+      backButton.hide();
+      selectedLabel = null;
+    });
+
+    layoutDOMButtons();
+
+    computeBtnSize();
+
+    // gallery
+    galleryButton = createButton("日記一覧");
+    galleryButton.style('position', 'absolute');
+    galleryButton.style('z-index', '10');
+    galleryButton.position(width - 130, 20);
+    galleryButton.mousePressed(() => {
+	    state = "gallery";
+	    addButton.hide();
+	    okButton.hide();
+	    backButton.show();
+
+	    galleryStars = [];
   　 for (let i = 0; i < 400; i++) {
-    　galleryStars.push({
-      x: random(-2000, 2000),
-		y: random(-2000, 2000),
-		z: random(-2000, 2000),
-		twinkle: random(1000),
-		baseSize: random(1, 4)
-      });
-    }
+      　galleryStars.push({
+          x: random(-2000, 2000),
+		  y: random(-2000, 2000),
+		  z: random(-2000, 2000),
+		  twinkle: random(1000),
+		  baseSize: random(1, 4)
+        });
+     }
   });
+
+	function styleButton(btn) {
+	  btn.style("font-family", "nicomoji_1.00");
+	  btn.style("font-size", width < 600 ? "22px" : "18px");
+	  btn.style("padding", width < 600 ? "14px 20px" : "12px 18px");
+	
+	  btn.style("color", "white");
+	  btn.style("background", "rgba(120,150,255,0.35)");
+	  btn.style("backdrop-filter", "blur(6px)");
+	  btn.style("border", "none");
+	  btn.style("border-radius", "12px");
+	  btn.style("box-shadow", "0 0 12px rgba(150,180,255,0.6)");
+	  btn.style("transition", "0.2s");
+	
+	  btn.mouseOver(() => btn.style("background", "rgba(160,180,255,0.55)"));
+	  btn.mouseOut(() => btn.style("background", "rgba(120,150,255,0.35)"));
+	}
+
+	styleButton(addButton);
+	styleButton(okButton);
+	styleButton(backButton);
+	styleButton(galleryButton);
 }
 
 function windowResized() {
