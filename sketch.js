@@ -432,10 +432,9 @@ function mouseWheel(event) {
 	    return false; 
 	  }
 
-
 	// ズーム
 	if (state === "visual") {
-	    camDistance += event.delta * 0.5;
+	    camDistance += event.delta * 0.9;
 	    camDistance = constrain(camDistance, 200, 2000);
 	 }
 	
