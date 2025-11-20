@@ -205,7 +205,6 @@ function prepareVisual() {
 function draw() {
 
   background(5,5,20);
-  resetMatrix();
 
   if(state === "select"){
     camera();
