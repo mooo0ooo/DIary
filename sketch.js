@@ -58,6 +58,7 @@ let galleryButton;
 let scrollY = 0;
 let targetScrollY = 0;
 let galleryStars = [];
+let selectedConstellation = null;
 
 let outerPad = 20;
 let gutter = 12;
@@ -136,16 +137,21 @@ function setup() {
     });
 
     backButton.mousePressed(() => {
-      state = "select";
-      addButton.show();
-      okButton.show();
-      backButton.hide();
-      selectedLabel = null;
-    });
+		if (state === "detail") {
+		    state = "gallery";
+		    return;
+		  }
+	
+        state = "select";
+        addButton.show();
+        okButton.show();
+        backButton.hide();
+        selectedLabel = null;
+      });
 
-    layoutDOMButtons();
+      layoutDOMButtons();
 
-    computeBtnSize();
+      computeBtnSize();
 
     // gallery
     galleryButton = createButton("日記一覧");
@@ -439,6 +445,11 @@ function mouseWheel(event) {
 	 }
 	
     return false;
+
+	if (state === "detail") {
+		drawDetailPage();
+		return;
+	}
 }
 
 function drawPADButtons(){
@@ -516,70 +527,135 @@ function drawButton(x,y,btnSize_,col,index,isSelected,shapeType,sides=4){
 }
 
 function mousePressed() {
-  if (state === "visual") {
-    if (allConstellations.length === 0) return;
-    let last = allConstellations[allConstellations.length - 1];
-    let minDist = 50;
-    let nearest = null;
-    for (let p of last.stars) {
-      let px = p.pos?.x ?? 0;
-      let py = p.pos?.y ?? 0;
-      let pz = p.pos?.z ?? 0;
-      let sp = screenPos(px, py, pz);
-      let sx = sp.x;
-      let sy = sp.y;
-      let d = dist(mouseX, mouseY, sx, sy);
-      if (d < minDist) { minDist = d; nearest = p; }
-    }
-    if (nearest) {
-      let emo = nearest.emo || {en:"", ja:""};
-      selectedLabel = emo.en + "(" + (emo.ja || "") + ")";
-    }
-    return;
-  } 
-  else if (state === "select") {
-    let mx = (mouseX - width/2) / padLayout.scl;
-    let my = (mouseY - height/2) / padLayout.scl;
-    let cx = padLayout.cx;
-    let cy = padLayout.cy;
-
-    // P 行
-    for (let i = 0; i < 7; i++) {
-      let bx = cx + (i-3)*(padLayout.btnSize+padLayout.spacing);
-      let by = cy - 120;
-      if (mx > bx - padLayout.btnSize/2 && mx < bx + padLayout.btnSize/2 &&
-          my > by - padLayout.btnSize/2 && my < by + padLayout.btnSize/2) {
-        selectedP = i;
+    if (state === "visual") {
+      if (allConstellations.length === 0) return;
+      let last = allConstellations[allConstellations.length - 1];
+      let minDist = 50;
+      let nearest = null;
+      for (let p of last.stars) {
+        let px = p.pos?.x ?? 0;
+        let py = p.pos?.y ?? 0;
+        let pz = p.pos?.z ?? 0;
+        let sp = screenPos(px, py, pz);
+        let sx = sp.x;
+        let sy = sp.y;
+        let d = dist(mouseX, mouseY, sx, sy);
+        if (d < minDist) { minDist = d; nearest = p; }
       }
-    }
-
-    // A 行 (円判定)
-    for (let i = 0; i < 7; i++) {
-      let bx = cx + (i-3)*(padLayout.btnSize+padLayout.spacing);
-      let by = cy;
-      if (dist(mx, my, bx, by) < padLayout.btnSize/2) {
-        selectedA = i;
+      if (nearest) {
+        let emo = nearest.emo || {en:"", ja:""};
+        selectedLabel = emo.en + "(" + (emo.ja || "") + ")";
       }
-    }
+      return;
+    } else if (state === "select") {
+      let mx = (mouseX - width/2) / padLayout.scl;
+      let my = (mouseY - height/2) / padLayout.scl;
+      let cx = padLayout.cx;
+      let cy = padLayout.cy;
 
-    // D 行 (円判定)
-    for (let i = 0; i < 7; i++) {
-      let bx = cx + (i-3)*(padLayout.btnSize+padLayout.spacing);
-      let by = cy + 120;
-      if (dist(mx, my, bx, by) < padLayout.btnSize/2) {
-        selectedD = i;
+      // P 行
+      for (let i = 0; i < 7; i++) {
+        let bx = cx + (i-3)*(padLayout.btnSize+padLayout.spacing);
+        let by = cy - 120;
+        if (mx > bx - padLayout.btnSize/2 && mx < bx + padLayout.btnSize/2 &&
+            my > by - padLayout.btnSize/2 && my < by + padLayout.btnSize/2) {
+          selectedP = i;
+        }
       }
-    }
-  }
+
+      // A 行 (円判定)
+      for (let i = 0; i < 7; i++) {
+        let bx = cx + (i-3)*(padLayout.btnSize+padLayout.spacing);
+        let by = cy;
+        if (dist(mx, my, bx, by) < padLayout.btnSize/2) {
+          selectedA = i;
+        }
+      }
+
+      // D 行 (円判定)
+      for (let i = 0; i < 7; i++) {
+        let bx = cx + (i-3)*(padLayout.btnSize+padLayout.spacing);
+        let by = cy + 120;
+        if (dist(mx, my, bx, by) < padLayout.btnSize/2) {
+          selectedD = i;
+        }
+      }
+    } 
+
+	if (state === "gallery") {
+	  let designWidth = 430;
+	  let galleryScale = min(1, width / designWidth);
+	
+	  let y = topOffset;
+	  let mx = (mouseX - width / 2) / galleryScale;
+	  let my = (mouseY - height / 2 - scrollY) / galleryScale;
+	
+	  let monthNames = [
+	    "January","February","March","April","May","June",
+	    "July","August","September","October","November","December"
+	  ];
+	
+	  let grouped = {};
+	  for (let m = 0; m < 12; m++) grouped[m] = [];
+	  for (let c of allConstellations) {
+	    let mm = c.created.match(/(\d+)\D+(\d+)\D+(\d+)/);
+	    if (!mm) continue;
+	    let monthIndex = int(mm[2]) - 1;
+	    grouped[monthIndex].push(c);
+	  }
+	
+	  for (let month = 0; month < 12; month++) {
+	    let list = grouped[month];
+	    if (list.length === 0) continue;
+	
+	    y += 45; 
+	
+	    let maxThumb = 160;
+	    let scaledWidth = width / galleryScale;
+	    let colCount = floor((scaledWidth - outerPad * 2) / (maxThumb + gutter));
+	    colCount = constrain(colCount, 1, 6);
+	
+	    let totalGutter = gutter * (colCount - 1);
+	    let availableWidth = scaledWidth - outerPad * 2 - totalGutter;
+	    let thumbSize = floor(availableWidth / colCount);
+	    thumbSize = constrain(thumbSize, 60, maxThumb);
+	
+	    let index = 0;
+	    let rowWidth = thumbSize * colCount + gutter * (colCount - 1);
+	    let rowStartX = (scaledWidth - rowWidth) / 2;
+	
+	    for (let cons of list) {
+	      let col = index % colCount;
+	      let row = floor(index / colCount);
+	
+	      let x = rowStartX + col * (thumbSize + gutter);
+	      let ty = y + row * (thumbSize + 40);
+	
+	      if (mx > x && mx < x + thumbSize &&
+	          my > ty && my < ty + thumbSize) {
+	        
+	        selectedConstellation = cons;
+	        state = "detail";
+	        return;
+	      }
+	
+	      index++;
+	    }
+	
+	    y += ceil(list.length / colCount) * (thumbSize + 40) + 40;
+	  }
+	
+	  return;
+	}
 }
 
 function polygon(x,y,r,n){
-  beginShape();
-  for(let i=0;i<n;i++){
-    let angle = TWO_PI*i/n;
-    vertex(x+cos(angle)*r,y+sin(angle)*r);
-  }
-  endShape(CLOSE);
+    beginShape();
+    for(let i=0;i<n;i++){
+      let angle = TWO_PI*i/n;
+      vertex(x+cos(angle)*r,y+sin(angle)*r);
+    }
+    endShape(CLOSE);
 }
 
 function findClosestEmotion(p,a,d){
@@ -796,4 +872,52 @@ function projectPoint (pos, ax, ay, size) {
   let py = map(ry, -120, 120, 10, size - 10);
 
   return createVector(px, py);
+}
+
+function drawDetailPage() {
+  background(5, 5, 20);
+
+  if (!selectedConstellation) return;
+
+  // カメラリセット
+  resetMatrix();
+  camera();
+
+  // 星座
+  push();
+  translate(width / 2, height / 2);
+  scale(1.2);
+
+  stroke(150, 80);
+  noFill();
+  rectMode(CENTER);
+  rect(0, 0, 280, 280);
+
+  // 星
+  for (let p of selectedConstellation.stars) {
+    let px = p.pos?.x ?? 0;
+    let py = p.pos?.y ?? 0;
+
+    fill(255, 255, 200);
+    noStroke();
+    circle(px * 1.2, py * 1.2, 10);
+  }
+
+  // 線
+  stroke(180, 200, 255, 90);
+  strokeWeight(2);
+  for (let a = 0; a < selectedConstellation.stars.length; a++) {
+    for (let b = a + 1; b < selectedConstellation.stars.length; b++) {
+      let pa = selectedConstellation.stars[a].pos;
+      let pb = selectedConstellation.stars[b].pos;
+      line(pa.x * 1.2, pa.y * 1.2, pb.x * 1.2, pb.y * 1.2);
+    }
+  }
+  pop();
+
+  // 日付ラベル
+  fill(255);
+  textAlign(CENTER, TOP);
+  textSize(20);
+  text(selectedConstellation.created, width / 2, 40);
 }
