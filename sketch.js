@@ -21,22 +21,27 @@ let emotions = [
   {en: "Dominant", ja: "支配的", P: 0.1, A: 0.2, D: 0.8}
 ];
 
+let myFont;
+
+// 3Dカメラ
+let camRotX = 0;
+let camRotY = 0;
+let camDistance = 600;
+let lastX = null;
+let lastY = null;
+
 let padValues = [];
 let points = [];
 let stars = [];
 let selectedLabel = null;
 
 let state = "select"; 
-let addButton, okButton;
-let backButton;
 
+let addButton, okButton, backButton;
+
+// PAD選択ボタン
 let selectedP = null, selectedA = null, selectedD = null; 
 let btnSize = 50;
-
-let myFont;
-let visualStartTime = 0; 
-let allConstellations = [];
-
 let padLayout = {
   cx: 0,
   cy: 0,
@@ -45,6 +50,10 @@ let padLayout = {
   scl: 1
 };
 
+let visualStartTime = 0; 
+let allConstellations = [];
+
+// 日記一覧ページ
 let galleryButton;
 let scrollY = 0;
 let targetScrollY = 0;
@@ -225,18 +234,49 @@ function prepareVisual() {
 }
 
 function draw() {
-
   background(5,5,20);
 
-  if(state === "select"){
+  if (state === "visual") {
+    let mx = mouseX;
+    let my = mouseY;
+
+    if (touches.length > 0) {
+      mx = touches[0].x;
+      my = touches[0].y;
+    }
+
+    if (mouseIsPressed || touches.length > 0) {
+      if (lastX !== null && lastY !== null) {
+        let dx = mx - lastX;
+        let dy = my - lastY;
+
+        camRotY += dx * 0.005; 
+        camRotX += dy * 0.005;  
+      }
+      lastX = mx;
+      lastY = my;
+    } else {
+      lastX = null;
+      lastY = null;
+    }
+
+    camera(
+      sin(camRotY) * cos(camRotX) * camDistance,
+      sin(camRotX) * camDistance,
+      cos(camRotY) * cos(camRotX) * camDistance,
+      0, 0, 0,
+      0, 1, 0
+    );
+  }
+
+  // ---------- 選択画面 ----------
+  if (state === "select"){
     camera();
     drawPADButtons();
     return;
   }
- 
-  orbitControl();
 
-  // ★ 星空
+  // ★ 星空描画
   push(); 
   noStroke();
   for (let s of stars) {
@@ -259,6 +299,7 @@ function draw() {
   pop();
 
   if (allConstellations.length === 0) return;
+
   let latest = allConstellations[allConstellations.length - 1];
   let latestMonth = -1;
 
@@ -280,9 +321,12 @@ function draw() {
   if (idx !== -1) displayList.splice(idx, 1);
   displayList.push(latest);
 
+
+  // ★ 星座描画
   for (let i = 0; i < displayList.length; i++) {
     let constellation = displayList[i];
     push();
+
     if (i === displayList.length - 1) {
       translate(0, 0, 200);
       scale(1.5);
@@ -339,25 +383,29 @@ function draw() {
     pop();
   }
 
+
+  // 月名
   if (allConstellations.length > 0) {
-   let latest = allConstellations[allConstellations.length - 1];
-   let m = latest?.created?.match(/(\d+)\D+(\d+)\D+(\d+)/);
-   let monthIndex = m ? int(m[2]) - 1 : 0;
-   let monthNames = [
-     "January","February","March","April","May","June",
-     "July","August","September","October","November","December"
-   ];
-   push();
-   resetMatrix();               
-   applyMatrix(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1);
-   noLights();
-   textAlign(CENTER, TOP);
-   textSize(32);
-   fill(255);
-   text(monthNames[monthIndex], width/2, 20);
-   pop();
- }
- 
+    let latest = allConstellations[allConstellations.length - 1];
+    let m = latest?.created?.match(/(\d+)\D+(\d+)\D+(\d+)/);
+    let monthIndex = m ? int(m[2]) - 1 : 0;
+    let monthNames = [
+      "January","February","March","April","May","June",
+      "July","August","September","October","November","December"
+    ];
+    push();
+    resetMatrix();               
+    applyMatrix(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1);
+    noLights();
+    textAlign(CENTER, TOP);
+    textSize(32);
+    fill(255);
+    text(monthNames[monthIndex], width/2, 20);
+    pop();
+  }
+
+
+  // 星をタップしたときのラベル
   if (selectedLabel) {
     push();
     camera();
@@ -368,13 +416,35 @@ function draw() {
     pop();
   }
 
+
+  // ギャラリー
   if (state === "gallery") {
-	  drawGallery2D();
-	  return;
+    drawGallery2D();
+    return;
   }
-  if (state !== "gallery") orbitControl();
 }
 
+function mouseWheel(event) {
+	// スクロール
+	if (state === "gallery") {
+	    targetScrollY -= event.delta * 0.5;
+	
+	    let maxScroll = 0;
+	    let minScroll = -3000;
+	    targetScrollY = constrain(targetScrollY, minScroll, maxScroll);
+	
+	    return false; 
+	  }
+
+
+	// ズーム
+	if (state === "visual") {
+	    camDistance += event.delta * 0.5;
+	    camDistance = constrain(camDistance, 200, 2000);
+	 }
+	
+    return false;
+}
 
 function drawPADButtons(){
   let cx = 0;
@@ -556,17 +626,6 @@ function screenPos(x, y, z) {
   let sy = map(-ndcY, -1, 1, 0, height);
 
   return createVector(sx, sy);
-}
-
-// gallery
-function mouseWheel(event) {
-  if (state === "gallery") {
-    targetScrollY -= event.delta * 0.5;
-
-	 let maxScroll = 0;
-	 let minScroll = -3000;
-	 targetScrollY = constrain(targetScrollY, minScroll, maxScroll);
-  }
 }
 
 function drawGallery2D() {
