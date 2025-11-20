@@ -1,3 +1,40 @@
+function setup() {
+  createCanvas(200, 200);
+  background(30);
+  console.log("SETUP START");
+
+  // localStorage チェック
+  try {
+    console.log("localStorage test:", localStorage.getItem("xxx"));
+  } catch (e) {
+    console.error("localStorage ERROR:", e);
+  }
+
+  // フォント読み込みチェック
+  try {
+    console.log("Font obj:", myFont);
+  } catch (e) {
+    console.error("Font load ERROR:", e);
+  }
+
+  // WEBGL レンダラーチェック
+  try {
+    let r = this._renderer;
+    console.log("renderer:", r);
+  } catch (e) {
+    console.error("Renderer ERROR:", e);
+  }
+
+  console.log("SETUP END");
+}
+
+function draw() {
+  background(60);
+  fill(255);
+  text("debug...", 20, 20);
+}
+
+
 let emotions = [
   {en: "Relaxed", ja: "リラックス", P: 0.7, A: -0.6, D: 0.2},
   {en: "Contented", ja: "満足", P: 0.6, A: -0.3, D: 0.1},
