@@ -1,40 +1,3 @@
-function setup() {
-  createCanvas(200, 200);
-  background(30);
-  console.log("SETUP START");
-
-  // localStorage チェック
-  try {
-    console.log("localStorage test:", localStorage.getItem("xxx"));
-  } catch (e) {
-    console.error("localStorage ERROR:", e);
-  }
-
-  // フォント読み込みチェック
-  try {
-    console.log("Font obj:", myFont);
-  } catch (e) {
-    console.error("Font load ERROR:", e);
-  }
-
-  // WEBGL レンダラーチェック
-  try {
-    let r = this._renderer;
-    console.log("renderer:", r);
-  } catch (e) {
-    console.error("Renderer ERROR:", e);
-  }
-
-  console.log("SETUP END");
-}
-
-function draw() {
-  background(60);
-  fill(255);
-  text("debug...", 20, 20);
-}
-
-
 let emotions = [
   {en: "Relaxed", ja: "リラックス", P: 0.7, A: -0.6, D: 0.2},
   {en: "Contented", ja: "満足", P: 0.6, A: -0.3, D: 0.1},
@@ -57,9 +20,6 @@ let emotions = [
   {en: "Influenced", ja: "影響される", P: -0.1, A: 0.0, D: -0.5},
   {en: "Dominant", ja: "支配的", P: 0.1, A: 0.2, D: 0.8}
 ];
-
-let isMobile = /iPhone|Android/.test(navigator.userAgent);
-let STAR_COUNT = isMobile ? 150 : 400;
 
 let padValues = [];
 let points = [];
@@ -99,27 +59,19 @@ function preload() {
   }
 
 function setup() {
-	createCanvas(windowWidth, windowHeight, WEBGL);
-	pixelDensity(1);
-	textFont(myFont);
-    textSize(16);	
-	
-	let saved = null;
-	try {
-		saved = localStorage.getItem("myConstellations");
-	} catch (e) {
-		console.warn("localStorage disabled", e);
-		saved = null;
-	}
-		
-	if (saved) {
-		try {
-	      allConstellations = JSON.parse(saved);
-	    } catch (e) {
-	      console.warn("localStorage JSON parse error, resetting storage.", e);
-	      allConstellations = [];
-	      localStorage.removeItem("myConstellations");
-	}
+  createCanvas(windowWidth, windowHeight, WEBGL);
+  textFont(myFont);
+  textSize(16);
+
+  let saved = localStorage.getItem("myConstellations");
+  if (saved) {
+    try {
+      allConstellations = JSON.parse(saved);
+    } catch (e) {
+      console.warn("localStorage JSON parse error, resetting storage.", e);
+      allConstellations = [];
+      localStorage.removeItem("myConstellations");
+    }
   }
  
   addButton = createButton("追加");
@@ -251,6 +203,7 @@ function prepareVisual() {
 }
 
 function draw() {
+
   background(5,5,20);
 
   if(state === "select"){
@@ -555,36 +508,32 @@ function findClosestEmotion(p,a,d){
 }
 
 function screenPos(x, y, z) {
-	if (!this._renderer || !this._renderer.uMVMatrix || !this._renderer.uPMatrix) {
-		return createVector(-9999, -9999);
-	}
+  const mv = this._renderer.uMVMatrix.mat4;
+  const p = this._renderer.uPMatrix.mat4;
 
-	const mv = this._renderer.uMVMatrix.mat4;
-  	const p = this._renderer.uPMatrix.mat4;
+  let v = [x, y, z, 1];
 
-	let v = [x, y, z, 1];
-
-	let mv_v = [
+  let mv_v = [
     mv[0]*v[0] + mv[4]*v[1] + mv[8]*v[2] + mv[12]*v[3],
     mv[1]*v[0] + mv[5]*v[1] + mv[9]*v[2] + mv[13]*v[3],
     mv[2]*v[0] + mv[6]*v[1] + mv[10]*v[2] + mv[14]*v[3],
     mv[3]*v[0] + mv[7]*v[1] + mv[11]*v[2] + mv[15]*v[3]
-    ];
+  ];
 
-    let clip = [
-      p[0]*mv_v[0] + p[4]*mv_v[1] + p[8]*mv_v[2] + p[12]*mv_v[3],
-      p[1]*mv_v[0] + p[5]*mv_v[1] + p[9]*mv_v[2] + p[13]*mv_v[3],
-      p[2]*mv_v[0] + p[6]*mv_v[1] + p[10]*mv_v[2] + p[14]*mv_v[3],
-      p[3]*mv_v[0] + p[7]*mv_v[1] + p[11]*mv_v[2] + p[15]*mv_v[3]
-    ];
+  let clip = [
+    p[0]*mv_v[0] + p[4]*mv_v[1] + p[8]*mv_v[2] + p[12]*mv_v[3],
+    p[1]*mv_v[0] + p[5]*mv_v[1] + p[9]*mv_v[2] + p[13]*mv_v[3],
+    p[2]*mv_v[0] + p[6]*mv_v[1] + p[10]*mv_v[2] + p[14]*mv_v[3],
+    p[3]*mv_v[0] + p[7]*mv_v[1] + p[11]*mv_v[2] + p[15]*mv_v[3]
+  ];
 
-	let ndcX = clip[0] / clip[3];
-    let ndcY = clip[1] / clip[3];
-	
-    let sx = map(ndcX, -1, 1, 0, width);
-    let sy = map(-ndcY, -1, 1, 0, height);
-	 
-	return createVector(sx, sy);
+  let ndcX = clip[0] / clip[3];
+  let ndcY = clip[1] / clip[3];
+
+  let sx = map(ndcX, -1, 1, 0, width);
+  let sy = map(-ndcY, -1, 1, 0, height);
+
+  return createVector(sx, sy);
 }
 
 // gallery
