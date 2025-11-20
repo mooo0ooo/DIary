@@ -103,7 +103,16 @@ function setup() {
         prepareVisual();
       
         let now = new Date();
-        let timestamp = now.toLocaleString();
+        let y = now.getFullYear();
+		let m = String(now.getMonth() + 1).padStart(2, "0");
+		let d = String(now.getDate()).padStart(2, "0");
+		let hh = String(now.getHours()).padStart(2, "0");
+		let mm = String(now.getMinutes()).padStart(2, "0");
+		
+		let weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+		let wd = weekdays[now.getDay()];
+		
+		let timestamp = `${y}/${m}/${d} (${wd}) ${hh}:${mm}`;
         let serialStars = points.map(s => {
           let px = (s.pos && typeof s.pos.x !== "undefined") ? s.pos.x : 0;
           let py = (s.pos && typeof s.pos.y !== "undefined") ? s.pos.y : 0;
@@ -403,19 +412,6 @@ function draw() {
     text(monthNames[monthIndex], width/2, 20);
     pop();
   }
-
-
-  // 星をタップしたときのラベル
-  if (selectedLabel) {
-    push();
-    camera();
-    fill(255);
-    textAlign(CENTER, CENTER);
-    textSize(20);
-    text(selectedLabel, width/2, height-40);
-    pop();
-  }
-
 
   // ギャラリー
   if (state === "gallery") {
