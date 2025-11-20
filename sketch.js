@@ -519,7 +519,7 @@ function findClosestEmotion(p,a,d){
 
 function screenPos(x, y, z) {
 	if (!this._renderer || !this._renderer.uMVMatrix || !this._renderer.uPMatrix) {
-		return createVector(-9999, -999);
+		return createVector(-9999, -9999);
 	}
 
 	const mv = this._renderer.uMVMatrix.mat4;
