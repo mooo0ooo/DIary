@@ -55,8 +55,8 @@ let gutter = 12;
 let topOffset = 40;
 
 function preload() {
-  myFont = loadFont("https://cdnjs.cloudflare.com/ajax/libs/topcoat/0.8.0/font/SourceCodePro-Regular.otf");
-}
+	myFont = loadFont("assets/SourceCodePro-Regular.otf");
+  }
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
