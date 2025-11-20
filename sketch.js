@@ -651,7 +651,7 @@ function drawGallery2D() {
 
       // 日付ラベル
       fill(230);
-      textSize(12);
+      textSize(9);
       textAlign(LEFT, TOP);
       text(cons.created, 0, thumbSize + 8);
 
