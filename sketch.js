@@ -105,15 +105,17 @@ function setup() {
       
         let now = new Date();
         let y = now.getFullYear();
+		let y = now.getFullYear();
 		let m = String(now.getMonth() + 1).padStart(2, "0");
 		let d = String(now.getDate()).padStart(2, "0");
-		let hh = String(now.getHours()).padStart(2, "0");
+		let hh = now.getHours();
 		let mm = String(now.getMinutes()).padStart(2, "0");
 		
 		let weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 		let wd = weekdays[now.getDay()];
-		
-		let timestamp = `${y}.${m}.${d} (${wd}) ${hh}時${mm}分`;
+		  
+		let timestamp = `${y}.${m}.${d}.${wd} ${hh}時${mm}分`;
+		  
         let serialStars = points.map(s => {
           let px = (s.pos && typeof s.pos.x !== "undefined") ? s.pos.x : 0;
           let py = (s.pos && typeof s.pos.y !== "undefined") ? s.pos.y : 0;
