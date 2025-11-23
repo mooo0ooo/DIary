@@ -67,6 +67,8 @@ let topOffset = 40;
 let zoomTarget = null;
 let zoomStartTime = 0;
 
+let closeDetailButton;
+
 function preload() {
 	myFont = loadFont("nicomoji-plus_v2-5.ttf");
   }
@@ -180,8 +182,17 @@ function setup() {
      }
   });
 
+	closeDetailButton = createButton("✕");
+	closeDetailButton.style('position', 'absolute');
+	closeDetailButton.style('z-index', '20');
+	closeDetailButton.hide();
+	closeDetailButton.mousePressed(() => {
+		state = "gallery";
+		closeDetailButton.hide();
+	});
+
 	function styleButton(btn) {
-	  btn.style("font-family", "nicomoji_1.00");
+	  btn.style("font-family", "nicomoji-plus_v2-5.ttf");
 	  btn.style("font-size", width < 600 ? "22px" : "18px");
 	  btn.style("padding", width < 600 ? "14px 20px" : "12px 18px");
 	
@@ -644,6 +655,10 @@ function mousePressed() {
 		    zoomStartTime = millis();
 			  
 	        state = "detail";
+
+			closeDetailButton.show();
+        	closeDetailButton.position(width - 60, 20);
+			  
 	        return;
 	      }
 	
@@ -798,8 +813,9 @@ function drawGallery2D() {
       rectMode(CORNER);
 
       // サムネ背景
+	  noFill();
       fill(255, 255, 255, 25);
-      noStroke();
+	  strokeWeight(3);
       rect(0, 0, thumbSize, thumbSize, 10);
 
       // 星座サムネ
@@ -884,47 +900,47 @@ function projectPoint (pos, ax, ay, size) {
 
 function drawDetailPage() {
 	background(5, 5, 20);
-
     if (!selectedConstellation) return;
 
     let t = (millis() - zoomStartTime) * 0.002;
-	let ease = min(1, t);
-	let scaleAnim = 0.4 + ease * 0.8 + 0.05 * sin(frameCount*0.1) + random(-0.01,0.01);
+    let ease = min(1, t);
+    let scaleAnim = 0.5 + ease * 0.7 + 0.04 * sin(frameCount * 0.05);
 
-	resetMatrix();
-	camera();
+    resetMatrix();
+    camera();
 
-	push();
-	translate(width/2, height/2);
-	scale(scaleAnim);
+    push();
+    translate(width/2, height/2);
+    scale(scaleAnim);
 
 	// 枠
-	stroke(150, 80);
+	stroke(255, 255, 255, 25);
+	strokeWeight(4);
 	noFill();
 	rectMode(CENTER);
-	rect(0, 0, 280, 280);
+	rect(0, 0, 300, 300, 16);
 
 	// 星
-	for (let p of selectedConstellation.stars) {
-		let px = p.pos?.x ?? 0;
-		let py = p.pos?.y ?? 0;
+    for (let p of selectedConstellation.stars) {
+        let px = p.pos?.x ?? 0;
+        let py = p.pos?.y ?? 0;
 
-		fill(255, 255, 200);
-		noStroke();
-		circle(px*1.2, py*1.2, 10+random(-1, 1));
-	}
+        fill(255, 255, 200, 230);
+        noStroke();
+        circle(px * 1.3, py * 1.3, 12 + random(-1, 1));
+    }
 
-	// 線
-	stroke(180, 200, 255, 90);
-	strokeWeight(2);
-	for (let a = 0; a < selectedConstellation.stars.length; a++ ) {
-		for (let b = a + 1; b < selectedConstellation.stars.length; b++ ) {
-			let pa = selectedConstellation.stars[a].pos;
-			let pb = selectedConstellation.stars[b].pos;
-			line(pa.x * 1.2, pa.y*1.2, pb.x*1.2, pb.y*1.2);
-		}
-	}
-	pop();
+    // 線
+    stroke(180, 200, 255, 100);
+    strokeWeight(2);
+    for (let a = 0; a < selectedConstellation.stars.length; a++ ) {
+        for (let b = a + 1; b < selectedConstellation.stars.length; b++ ) {
+            let pa = selectedConstellation.stars[a].pos;
+            let pb = selectedConstellation.stars[b].pos;
+            line(pa.x * 1.3, pa.y * 1.3, pb.x * 1.3, pb.y * 1.3);
+        }
+    }
+    pop();
 
 	// 日付ラベル
 	fill(255);
