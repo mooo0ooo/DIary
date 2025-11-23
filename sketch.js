@@ -64,6 +64,9 @@ let outerPad = 20;
 let gutter = 12;
 let topOffset = 40;
 
+let zoomTarget = null;
+let zoomStartTime = 0;
+
 function preload() {
 	myFont = loadFont("assets/nicomoji_1.00.ttf");
   }
@@ -637,6 +640,10 @@ function mousePressed() {
 	          my > ty && my < ty + thumbSize) {
 	        
 	        selectedConstellation = cons;
+
+ 			zoomTarget = cons;
+		    zoomStartTime = millis();
+			  
 	        state = "detail";
 	        return;
 	      }
@@ -877,49 +884,52 @@ function projectPoint (pos, ax, ay, size) {
 }
 
 function drawDetailPage() {
-  background(5, 5, 20);
+	background(5, 5, 20);
 
-  if (!selectedConstellation) return;
+    if (!selectedConstellation) return;
 
-  // カメラリセット
-  resetMatrix();
-  camera();
+    let t = (millis() - zoomStartTime) * 0.002;
+	let ease = min(1, t);
+	let scaleAnim = 0.4 + ease * 0.8 + 0.05 * sin(frameCount*0.1) + random(-0.01,0.01);
 
-  // 星座
-  push();
-  translate(width / 2, height / 2);
-  scale(1.2);
+	resetMatrix();
+	camera();
 
-  stroke(150, 80);
-  noFill();
-  rectMode(CENTER);
-  rect(0, 0, 280, 280);
+	push();
+	translate(width/2, height/2);
+	scale(scaleAnim);
 
-  // 星
-  for (let p of selectedConstellation.stars) {
-    let px = p.pos?.x ?? 0;
-    let py = p.pos?.y ?? 0;
+	// 枠
+	stroke(150, 80);
+	noFill();
+	rectMode(CENTER);
+	rect(0, 0, 280, 280);
 
-    fill(255, 255, 200);
-    noStroke();
-    circle(px * 1.2, py * 1.2, 10);
-  }
+	// 星
+	for (let p of selectedConstellation.stars) {
+		let px = p.pos?.x ?? 0;
+		let py = p.pos?.y ?? 0;
 
-  // 線
-  stroke(180, 200, 255, 90);
-  strokeWeight(2);
-  for (let a = 0; a < selectedConstellation.stars.length; a++) {
-    for (let b = a + 1; b < selectedConstellation.stars.length; b++) {
-      let pa = selectedConstellation.stars[a].pos;
-      let pb = selectedConstellation.stars[b].pos;
-      line(pa.x * 1.2, pa.y * 1.2, pb.x * 1.2, pb.y * 1.2);
-    }
-  }
-  pop();
+		fill(255, 255, 200);
+		noStroke();
+		circle(px*1.2, py*1.2, 10+random(-1, 1));
+	}
 
-  // 日付ラベル
-  fill(255);
-  textAlign(CENTER, TOP);
-  textSize(20);
-  text(selectedConstellation.created, width / 2, 40);
+	// 線
+	stroke(180, 200, 255, 90);
+	strokeWeight(2);
+	for (let a = 0; a < selectedConstellation.stars.length; a++ ) {
+		for (let b = a + 1; b < selectedConstellation.stars.length; b++ ) {
+			let pa = selectedConstellation.stars[a].pos;
+			let pb = selectedConstellation.stars[b].pos;
+			line(pa.x * 1.2, pa.y*1.2, pb.x*1.2, pb.y*1.2);
+		}
+	}
+	pop();
+
+	// 日付ラベル
+	fill(255);
+	textAlign(CENTER, TOP);
+	textSize(20);
+	text(selectedConstellation.created, width/2, 40);
 }
