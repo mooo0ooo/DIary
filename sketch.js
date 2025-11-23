@@ -108,7 +108,6 @@ function setup() {
       
         let now = new Date();
         let y = now.getFullYear();
-		let y = now.getFullYear();
 		let m = String(now.getMonth() + 1).padStart(2, "0");
 		let d = String(now.getDate()).padStart(2, "0");
 		let hh = now.getHours();
