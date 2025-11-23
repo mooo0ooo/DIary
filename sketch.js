@@ -68,7 +68,7 @@ let zoomTarget = null;
 let zoomStartTime = 0;
 
 function preload() {
-	myFont = loadFont("assets/nicomoji_1.00.ttf");
+	myFont = loadFont("nicomoji-plus_v2-5.ttf");
   }
 
 function setup() {
