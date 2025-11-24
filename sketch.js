@@ -280,6 +280,9 @@ function prepareVisual() {
 function draw() {
   background(5,5,20);
 
+  resetMatrix();
+  camera();
+
 　if (state === "detail") {
 	 closeDetailButton.show();
 	 drawDetailPage();
@@ -772,19 +775,19 @@ function drawGallery2D() {
   camera();
 	
   background(5, 5, 20); 
+	
   push(); 
   noStroke(); 
   for (let s of galleryStars) { 
 	  if (random() < 0.02) s.on = !s.on; 
 	  let pulse = 0.5 + 0.5 * sin(frameCount * 0.02 + s.twinkle); 
 	  let starSize = s.baseSize + pulse * random(0.5, 2); 
-	  fill(200 + random(-20, 20), 200 + random(-20, 20), 255, 180); 
-	  push(); 
-	  translate(s.x, s.y); 
-	  circle(0, 0, starSize * 2);
-	  pop(); 
+	  let sx = width/2 + s.x * 0.08;
+	  let sy = height/2 + s.y * 0.08;
+	  fill(200 + random(-15, 15), 200 + random(-15, 15), 255, 180); 
+	  circle(sx, sy, starSize * 2); 
   }
-	pop();
+  pop();
 	
   translate(-width / 2, -height / 2);
 
@@ -886,9 +889,9 @@ function drawGallery2D() {
 
   pop();
 
-  let scaledY = y * galleryScale;
-  let minScroll = -max(0, scaledY - height + 40);
-
+  // --- スクロール限界設定 ---
+  let contentHeight = y * galleryScale;
+  let minScroll = -max(0, contentHeight - height + 40);
   targetScrollY = constrain(targetScrollY, minScroll, 0);
   scrollY = constrain(scrollY, minScroll, 0);
 }
