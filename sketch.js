@@ -279,8 +279,6 @@ function prepareVisual() {
 
 function draw() {
   background(5,5,20);
-  resetMatrix();
-  camera();
 
   if (state === "detail") {
 	 closeDetailButton.show();
@@ -289,6 +287,20 @@ function draw() {
   }
 
   if (state === "visual") {
+	  push();
+	  noStroke();
+	  for (let s of stars) {
+		  let tw = noise(s.twinkle + frameCount * 0.01);
+		  let flicker = map(tw, 0, 1, 0.3, 1.2);
+		  let alpha = map(flicker, 0.3, 1.2, 70, 240);
+		  fill(255, alpha);
+		  push();
+		  translate(s.x, s.y, s.z);
+		  sphere(2);
+		  pop();
+	  }
+	  pop();
+	  
     let mx = mouseX;
     let my = mouseY;
 
@@ -352,40 +364,6 @@ function draw() {
     drawPADButtons();
     return;
   }
-
-  // ★ 星空描画
-	push();
-	noStroke();
-	
-	for (let s of stars) {
-	  let temp = s.temp || (s.temp = random(0, 1));
-	  let col = lerpColor(color(255, 180, 130), color(180, 200, 255), temp);
-
-	  let tw = noise(s.twinkle + frameCount * 0.01);
-	  let flicker = map(tw, 0, 1, 0.3, 1.2);
-	
-	  let starSize = s.baseSize * flicker;
-	  let alpha = map(flicker, 0.3, 1.2, 80, 255);
-	
-	  fill(red(col), green(col), blue(col), alpha);
-	
-	  push();
-	  translate(s.x, s.y, s.z);
-	  sphere(starSize * 1.2);
-	  pop();
-	}
-	
-	if (random() < 0.004) {
-	  push();
-	  stroke(255, 255, 200, 180);
-	  strokeWeight(2);
-	  let sx = random(-2000, 2000);
-	  let sy = random(-2000, 2000);
-	  let sz = random(-1000, 500);
-	  line(sx, sy, sz, sx + 80, sy + 40, sz - 40);
-	  pop();
-	}
-	pop();
 
   if (allConstellations.length === 0) return;
 
@@ -657,79 +635,64 @@ function mousePressed() {
     } 
 
 	if (state === "gallery") {
-	  let designWidth = 430;
-	  let galleryScale = min(1, width / designWidth);
-	
-	  let y = topOffset;
-	  let mx = (mouseX - width / 2) / galleryScale;
-	  let my = (mouseY - height / 2 - scrollY) / galleryScale;
-	
-	  let monthNames = [
-	    "January","February","March","April","May","June",
-	    "July","August","September","October","November","December"
-	  ];
-	
-	  let grouped = {};
-	  for (let m = 0; m < 12; m++) grouped[m] = [];
-	  for (let c of allConstellations) {
-	    let mm = c.created.match(/(\d+)\D+(\d+)\D+(\d+)/);
-	    if (!mm) continue;
-	    let monthIndex = int(mm[2]) - 1;
-	    grouped[monthIndex].push(c);
-	  }
-	
-	  for (let month = 0; month < 12; month++) {
-	    let list = grouped[month];
-	    if (list.length === 0) continue;
-	
-	    y += 45; 
-	
-	    let maxThumb = 160;
-	    let scaledWidth = width / galleryScale;
-	    let colCount = floor((scaledWidth - outerPad * 2) / (maxThumb + gutter));
-	    colCount = constrain(colCount, 1, 6);
-	
-	    let totalGutter = gutter * (colCount - 1);
-	    let availableWidth = scaledWidth - outerPad * 2 - totalGutter;
-	    let thumbSize = floor(availableWidth / colCount);
-	    thumbSize = constrain(thumbSize, 60, maxThumb);
-	
-	    let index = 0;
-	    let rowWidth = thumbSize * colCount + gutter * (colCount - 1);
-	    let rowStartX = (scaledWidth - rowWidth) / 2;
-	
-	    for (let cons of list) {
-	      let col = index % colCount;
-	      let row = floor(index / colCount);
-	
-	      let x = rowStartX + col * (thumbSize + gutter);
-	      let ty = y + row * (thumbSize + 40);
-	
-	      if (mx > x && mx < x + thumbSize &&
-	          my > ty && my < ty + thumbSize) {
-	        
-	        selectedConstellation = cons;
+		  let y = topOffset + scrollY;
+		
+		  let maxThumb = 160;
+		  let colCount = floor((width - outerPad * 2) / (maxThumb + gutter));
+		  colCount = constrain(colCount, 1, 5);
+		
+		  let thumbSize = floor((width - outerPad * 2 - gutter * (colCount - 1)) / colCount);
+		  thumbSize = constrain(thumbSize, 60, maxThumb);
+		
+		  let mx = mouseX;
+		  let my = mouseY;
+		
+		  let grouped = {};
+		  for (let i=0; i<12; i++) grouped[i] = [];
+		  for (let c of allConstellations) {
+		    let m = c.created.match(/(\d+)\D+(\d+)\D+(\d+)/);
+		    if (!m) continue;
+		    grouped[int(m[2]) - 1].push(c);
+		  }
+		
+		  for (let month = 0; month < 12; month++) {
+		    let list = grouped[month];
+		    if (list.length === 0) continue;
+		
+		    y += 40;
+		
+		    let index = 0;
+		    let rows = ceil(list.length / colCount);
+		
+		    for (let cons of list) {
+		      let col = index % colCount;
+		      let row = floor(index / colCount);
+		
+		      let x = outerPad + col * (thumbSize + gutter);
+		      let ty = y + row * (thumbSize + 35);
+		
+		      if (mx > x && mx < x + thumbSize &&
+		          my > ty && my < ty + thumbSize) {
+		
+		        selectedConstellation = cons;
+		        zoomTarget = cons;
+		        zoomStartTime = millis();
+		        state = "detail";
+		
+		        closeDetailButton.show();
+		        closeDetailButton.position(width - 60, 20);
+		        return;
+		      }
+		
+		      index++;
+		    }
+		
+		    y += rows * (thumbSize + 35) + 40;
+		  }
+		
+		  return;
+		}
 
- 			zoomTarget = cons;
-		    zoomStartTime = millis();
-			  
-	        state = "detail";
-
-			closeDetailButton.show();
-        	closeDetailButton.position(width - 60, 20);
-			  
-	        return;
-	      }
-	
-	      index++;
-	    }
-	
-	    y += ceil(list.length / colCount) * (thumbSize + 40) + 40;
-	  }
-	
-	  return;
-	}
-}
 
 function touchStarted() {
 	if (state === "gallery") {
@@ -759,32 +722,25 @@ function findClosestEmotion(p,a,d){
 }
 
 function screenPos(x, y, z) {
-  const mv = this._renderer.uMVMatrix.mat4;
-  const p = this._renderer.uPMatrix.mat4;
+	let render = this._renderer || _renderer;
+	let model = renderer.uMVMatrix.copy();
+	let proj = renderer.uPMatrix.copy();
 
-  let v = [x, y, z, 1];
+	let v = createdVector(x, y, z);
+	let mv = model.applyToVector(V);
 
-  let mv_v = [
-    mv[0]*v[0] + mv[4]*v[1] + mv[8]*v[2] + mv[12]*v[3],
-    mv[1]*v[0] + mv[5]*v[1] + mv[9]*v[2] + mv[13]*v[3],
-    mv[2]*v[0] + mv[6]*v[1] + mv[10]*v[2] + mv[14]*v[3],
-    mv[3]*v[0] + mv[7]*v[1] + mv[11]*v[2] + mv[15]*v[3]
-  ];
+	let cx = proj.mat4[0] * mv.x + proj.mat4[4] * mv.y + proj.mat4[8]  * mv.z + proj.mat4[12];
+	let cy = proj.mat4[1] * mv.x + proj.mat4[5] * mv.y + proj.mat4[9]  * mv.z + proj.mat4[13];
+	let cz = proj.mat4[2] * mv.x + proj.mat4[6] * mv.y + proj.mat4[10] * mv.z + proj.mat4[14];
+	let cw = proj.mat4[3] * mv.x + proj.mat4[7] * mv.y + proj.mat4[11] * mv.z + proj.mat4[15];
+	
+	let ndcX = cx / cw;
+	let ndcY = cy / cw;
 
-  let clip = [
-    p[0]*mv_v[0] + p[4]*mv_v[1] + p[8]*mv_v[2] + p[12]*mv_v[3],
-    p[1]*mv_v[0] + p[5]*mv_v[1] + p[9]*mv_v[2] + p[13]*mv_v[3],
-    p[2]*mv_v[0] + p[6]*mv_v[1] + p[10]*mv_v[2] + p[14]*mv_v[3],
-    p[3]*mv_v[0] + p[7]*mv_v[1] + p[11]*mv_v[2] + p[15]*mv_v[3]
-  ];
+	let sx = map(ndcX, -1, 1, 0, width);
+	let sy = map(-ndcY, -1, 1, 0, height);
 
-  let ndcX = clip[0] / clip[3];
-  let ndcY = clip[1] / clip[3];
-
-  let sx = map(ndcX, -1, 1, 0, width);
-  let sy = map(-ndcY, -1, 1, 0, height);
-
-  return createVector(sx, sy);
+	return createVector(sx, sy);
 }
 
 function drawGallery2D() {
@@ -792,139 +748,96 @@ function drawGallery2D() {
 
 	let galleryScale = min(1, width / 430);
 	
-    push();
-	noStroke();
-	
 	for (let s of galleryStars) {
+	    let tw = noise(s.twinkle + frameCount * 0.01);
+	    let flicker = map(tw, 0, 1, 0.3, 1.2);
+	    let size = s.baseSize * flicker;
 	
-　  let temp = s.temp || (s.temp = random(0, 1));
-	let col = lerpColor(color(255, 190, 140), color(170, 200, 255), temp);
-	
-　  let tw = noise(s.twinkle + frameCount * 0.01);
-    let flicker = map(tw, 0, 1, 0.4, 1.3);
-	
-	let starSize = s.baseSize * flicker;
-	let sx = width/2 + s.x * 0.08;
-	let sy = height/2 + s.y * 0.08;
-	let alpha = map(flicker, 0.4, 1.3, 50, 230);
-	
-	fill(red(col), green(col), blue(col), alpha);
-	circle(sx, sy, starSize * 2);
-}
-
-    if (random() < 0.004) {
-	  push();
-	  stroke(255, 240, 200, 200);
-	  strokeWeight(2);
-	  let sx = random(0, width);
-	  let sy = random(0, height);
-	  line(sx, sy, sx + 40, sy + 20);
-	  pop();
-	}
-	pop();
+	    fill(255, 200);
+	    let sx = s.x * 0.08 + width / 2;
+	    let sy = s.y * 0.08 + height / 2;
+	    circle(sx, sy, size);
+	  }
 
   // スクロール
-  scrollY = lerp(scrollY, targetScrollY, 0.4);
+  scrollY = lerp(scrollY, targetScrollY, 0.25);
 
-  push();
-  scale(galleryScale);
-  translate(0, scrollY / galleryScale);
+  let y = topOffset + scrollY;
 
   let maxThumb = 160;
-  let scaledWidth = width / galleryScale;
+  let colCount = floor((width - outerPad * 2) / (maxThumb + gutter));
+  colCount = constrain(colCount, 1, 5);
 
-  let colCount = floor((scaledWidth - outerPad * 2) / (maxThumb + gutter));
-  colCount = constrain(colCount, 1, 6);
-
-  let totalGutter = gutter * (colCount - 1);
-  let availableWidth = scaledWidth - outerPad * 2 - totalGutter;
-
-  let thumbSize = floor(availableWidth / colCount);
+  let thumbSize = floor((width - outerPad * 2 - gutter * (colCount - 1)) / colCount);
   thumbSize = constrain(thumbSize, 60, maxThumb);
 
-  // 月名
+  // --- 月分類 ---
+  let grouped = {};
+  for (let i = 0; i < 12; i++) grouped[i] = [];
+
+  for (let c of allConstellations) {
+    let m = c.created.match(/(\d+)\D+(\d+)\D+(\d+)/);
+    if (!m) continue;
+    grouped[int(m[2]) - 1].push(c);
+  }
+
   let monthNames = [
     "January","February","March","April","May","June",
     "July","August","September","October","November","December"
   ];
 
-  // --- 月ごとに分類 ---
-  let monthLabelOffset = 20; 
-  let y = topOffset;
-
-  let grouped = {};
-  for (let m = 0; m < 12; m++) grouped[m] = [];
-  for (let c of allConstellations) {
-    let m = c.created.match(/(\d+)\D+(\d+)\D+(\d+)/);
-    if (!m) continue;
-    let monthIndex = int(m[2]) - 1;
-    grouped[monthIndex].push(c);
-  }
-
+  // 表示
   for (let month = 0; month < 12; month++) {
     let list = grouped[month];
     if (list.length === 0) continue;
 
     fill(255);
-    textSize(32);
+    textSize(26);
     textAlign(LEFT, TOP);
-    text(monthNames[month], monthLabelOffset, y);  
-    y += 45;
+    text(monthNames[month], outerPad, y);
+    y += 40;
 
-    // サムネ描画
     let index = 0;
     let rows = ceil(list.length / colCount);
-		 
-    let rowWidth = thumbSize * colCount + gutter * (colCount - 1);
-    let rowStartX = (scaledWidth - rowWidth) / 2;
 
     for (let cons of list) {
       let col = index % colCount;
       let row = floor(index / colCount);
 
-      let x = rowStartX + col * (thumbSize + gutter);
-      let ty = y + row * (thumbSize + 40);
+      let x = outerPad + col * (thumbSize + gutter);
+      let ty = y + row * (thumbSize + 35);
 
       push();
       translate(x, ty);
-      rectMode(CORNER);
 
-      // 枠
-	  noFill();
       stroke(150, 80);
-	  strokeWeight(2);
-      rect(0, 0, thumbSize, thumbSize, 16);
+      noFill();
+      rect(0, 0, thumbSize, thumbSize, 12);
 
-      // 星座サムネ
       if (!cons.thumbnail) {
-		  cons.thumbnail = generateThumbnail(cons, thumbSize);
-	  }
+        cons.thumbnail = generateThumbnail(cons, thumbSize);
+      }
+      image(cons.thumbnail, 0, 0, thumbSize, thumbSize);
 
-		image(cons.thumbnail, 0, 0);
-
-      // 日付ラベル
-      fill(230);
+      fill(240);
       textSize(10);
       textAlign(LEFT, TOP);
-      text(cons.created, 0, thumbSize + 8);
+      text(cons.created, 0, thumbSize + 6);
 
       pop();
 
       index++;
     }
 
-    y += rows * (thumbSize + 40) + 40;
+    y += rows * (thumbSize + 35) + 40;
   }
 
-  pop();
-
-  // --- スクロール限界設定 ---
-  let contentHeight = y * galleryScale;
-  let minScroll = -max(0, contentHeight - height + 40);
+  // スクロール限界
+  let minScroll = height - (y + 80);
   targetScrollY = constrain(targetScrollY, minScroll, 0);
   scrollY = constrain(scrollY, minScroll, 0);
 }
-
+	
 function generateThumbnail(cons, size) {
 	let pg = createGraphics(size, size);
 	pg.background(5, 5, 20);
