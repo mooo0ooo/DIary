@@ -214,7 +214,7 @@ function setup() {
 		  btn.style("transform", "scale(1.05)");
 	  });
 	  btn.mouseOut(() => {
-		  btn.style("background", "rgba(255,255,255,0.15)"));
+		  btn.style("background", "rgba(255,255,255,0.15)");
 		  btn.style("box-shadow", "0 8px 26px rgba(0,0,0,0.25), inset0 0 18px rgba(255,255,255,0.2)");
 		  btn.style("transform", "scale(1.0)");
 	  });
