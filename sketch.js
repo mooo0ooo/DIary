@@ -1,4 +1,4 @@
-let emotions = [
+　let emotions = [
   {en: "Relaxed", ja: "リラックス", P: 0.7, A: -0.6, D: 0.2},
   {en: "Contented", ja: "満足", P: 0.6, A: -0.3, D: 0.1},
   {en: "Calm", ja: "落ち着いた", P: 0.65, A: -0.5, D: 0.0},
@@ -946,6 +946,9 @@ function drawDetailPage() {
     translate(width/2, height/2);
     scale(scaleAnim);
 
+	let ax = radians(-30);
+	let ay = radians(30);
+
 	// 枠
 	stroke(150, 80);
 	strokeWeight(2);
@@ -954,26 +957,25 @@ function drawDetailPage() {
 	rect(0, 0, 300, 300, 16);
 
 	// 星
-    for (let p of selectedConstellation.stars) {
-        let px = p.pos?.x ?? 0;
-        let py = p.pos?.y ?? 0;
-
-        fill(255, 255, 200, 230);
-        noStroke();
-        circle(px * 1.3, py * 1.3, 12 + random(-1, 1));
-    }
+    noStroke();
+	fill(255, 255, 200, 230);
+	for (let s of selectedConstellation.stars) {
+		let p = projectPoint(s.pos, ax, ay, 300);
+		circle(p.x - 150, p.y - 150, 12 + random(-1, 1));
+	}
 
     // 線
     stroke(180, 200, 255, 100);
-    strokeWeight(2);
-    for (let a = 0; a < selectedConstellation.stars.length; a++ ) {
-        for (let b = a + 1; b < selectedConstellation.stars.length; b++ ) {
-            let pa = selectedConstellation.stars[a].pos;
-            let pb = selectedConstellation.stars[b].pos;
-            line(pa.x * 1.3, pa.y * 1.3, pb.x * 1.3, pb.y * 1.3);
-        }
-    }
-    pop();
+	strokeWeight(2);
+	for (let a = 0; a < selectedConstellation.stars.length; a++) {
+	    for (let b = a + 1; b < selectedConstellation.stars.length; b++) {
+	        let pa = projectPoint(selectedConstellation.stars[a].pos, ax, ay, 300);
+	        let pb = projectPoint(selectedConstellation.stars[b].pos, ax, ay, 300);
+	        line(pa.x - 150, pa.y - 150, pb.x - 150, pb.y - 150);
+	    }
+	  }
+	
+	  pop();
 
 	// 日付ラベル
 	fill(255);
