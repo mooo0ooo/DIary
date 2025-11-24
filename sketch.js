@@ -860,11 +860,11 @@ function drawGallery2D() {
       translate(x, ty);
       rectMode(CORNER);
 
-      // サムネ背景
+      // 枠
 	  noFill();
-      fill(255, 255, 255, 25);
-	  strokeWeight(3);
-      rect(0, 0, thumbSize, thumbSize, 10);
+      stroke(150, 80);
+	  strokeWeight(2);
+      rect(0, 0, thumbSize, thumbSize, 16);
 
       // 星座サムネ
       if (!cons.thumbnail) {
