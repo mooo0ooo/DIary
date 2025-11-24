@@ -788,9 +788,6 @@ function screenPos(x, y, z) {
 }
 
 function drawGallery2D() {
-    resetMatrix();
-    camera();
-	
     background(5, 5, 20); 
 	
     push();
@@ -1006,9 +1003,6 @@ function drawDetailPage() {
     let t = (millis() - zoomStartTime) * 0.002;
     let ease = min(1, t);
     let scaleAnim = 0.5 + ease * 0.7 + 0.04 * sin(frameCount * 0.05);
-
-    resetMatrix();
-    camera();
 
     push();
     translate(width/2, height/2);
