@@ -1,4 +1,4 @@
-let state = "seelect";
+let state = "select";
 let myFont;
 let addButton, okButton, backButton, galleryButton;
 let allConstellations = [];
