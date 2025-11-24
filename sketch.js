@@ -1,11 +1,17 @@
 let state = "select";
+
 let myFont;
+
 let addButton, okButton, backButton, galleryButton;
+
 let allConstellations = [];
 let selectedLabel = null;
 
 let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
 let touchMovedFlag = false;
+
+let bgStars = [];
+let bgStarCount = 300;
 
 function preload() {
   myFont = loadFont("nicomoji-plus_v2-5.ttf");
@@ -83,6 +89,16 @@ function setup() {
   });
 
   computeBtnSize();
+
+  // 背景の星
+  for (let i = 0; i < bgStarCount; i++) {
+    bgStars.push( {
+      x: random(-width * 2, width * 2),
+      y: random(-height * 2, height * 2),
+      z: random(-2000, 200),
+      tw: random(1000)
+    });
+  }
 }
 
 function windowResized() {
@@ -94,6 +110,9 @@ function draw() {
   background(5,5,20);
 
   if (state === "visual") {
+    drawBackgroundStars();
+    drawVisualMode();
+    
     camRotX += rotVelX;
     camRotY += rotVelY;
     rotVelX *= 0.9;
@@ -102,8 +121,6 @@ function draw() {
 
     let camPos = computeCameraPosition();
     camera(camPos.x, camPos.y, camPos.z, camPanX, camPanY, 0, 0, 1, 0);
-
-    drawVisualMode();
 
     resetMatrix();
     if (selectedLabel) {
@@ -130,9 +147,28 @@ function draw() {
   // ----------------
   if (state === "gallery") {
     resetMatrix();
+    drawBackgroundStars();
     drawGallery2D(allConstellations);
     return;
   }
+}
+
+function drawBackgroundStars() {
+  push();
+  noStroke();
+
+  for (let s of bgStars) {
+    let tw = (sin((millis() + s.tw) * 0.002) + 1) * 0.5; 
+    let brightness = lerp(100, 255, tw);
+    
+    fill(brightness);
+    push();
+    translate(s.x, s.y, s.z);
+    sphere(1.5); 
+    pop();
+  }
+  
+  pop();
 }
 
 function touchStarted() {
