@@ -722,26 +722,32 @@ function findClosestEmotion(p,a,d){
 }
 
 function screenPos(x, y, z) {
-	let render = this._renderer || _renderer;
-	let model = renderer.uMVMatrix.copy();
-	let proj = renderer.uPMatrix.copy();
+  let p = createVector(x, y, z);
 
-	let v = createdVector(x, y, z);
-	let mv = model.applyToVector(V);
+  let modelView = _renderer.uMVMatrix.copy();
+  let projection = _renderer.uPMatrix.copy();
 
-	let cx = proj.mat4[0] * mv.x + proj.mat4[4] * mv.y + proj.mat4[8]  * mv.z + proj.mat4[12];
-	let cy = proj.mat4[1] * mv.x + proj.mat4[5] * mv.y + proj.mat4[9]  * mv.z + proj.mat4[13];
-	let cz = proj.mat4[2] * mv.x + proj.mat4[6] * mv.y + proj.mat4[10] * mv.z + proj.mat4[14];
-	let cw = proj.mat4[3] * mv.x + proj.mat4[7] * mv.y + proj.mat4[11] * mv.z + proj.mat4[15];
-	
-	let ndcX = cx / cw;
-	let ndcY = cy / cw;
+  let mv = applyMatrixToVector(modelView, p);
+  let clip = applyMatrixToVector(projection, mv);
 
-	let sx = map(ndcX, -1, 1, 0, width);
-	let sy = map(-ndcY, -1, 1, 0, height);
+  let sx = map(clip.x / clip.w, -1, 1, 0, width);
+  let sy = map(-clip.y / clip.w, -1, 1, 0, height);
 
-	return createVector(sx, sy);
+  return createVector(sx, sy);
 }
+
+function applyMatrixToVector(mat, v) {
+  let x = v.x, y = v.y, z = v.z;
+  let m = mat.mat4;
+
+  let cx = m[0]*x + m[4]*y + m[8]*z + m[12];
+  let cy = m[1]*x + m[5]*y + m[9]*z + m[13];
+  let cz = m[2]*x + m[6]*y + m[10]*z + m[14];
+  let cw = m[3]*x + m[7]*y + m[11]*z + m[15];
+
+  return { x: cx, y: cy, z: cz, w: cw };
+}
+
 
 function drawGallery2D() {
     background(5, 5, 20); 
