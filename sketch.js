@@ -24,8 +24,10 @@ let emotions = [
 let myFont;
 
 // 3Dカメラ
-let camRotX = 0;
-let camRotY = 0;
+let camPanX = 0; 
+let camPanY = 0; 
+let rotVelX = 0; 
+let rotVelY = 0;
 let camDistance = 600;
 let lastX = null;
 let lastY = null;
@@ -281,20 +283,45 @@ function draw() {
       my = touches[0].y;
     }
 
-    if (mouseIsPressed || touches.length > 0) {
-      if (lastX !== null && lastY !== null) {
-        let dx = mx - lastX;
-        let dy = my - lastY;
+    let isPan = (mouseButton === RIGHT) || (touches.length >= 2);
 
-        camRotY += dx * 0.005; 
-        camRotX += dy * 0.005;  
+    if (mouseIsPressed || touches.length > 0) {
+    if (lastX !== null && lastY !== null) {
+      let dx = mx - lastX;
+      let dy = my - lastY;
+
+      if (isPan) {
+        // パン移動
+        camPanX += dx * 0.5;
+        camPanY += dy * 0.5;
+      } else {
+        // 回転
+        camRotY += dx * 0.005;
+        camRotX += dy * 0.005;
+        rotVelX = dx * 0.002;
+        rotVelY = dy * 0.002;
       }
+    }
       lastX = mx;
       lastY = my;
     } else {
       lastX = null;
       lastY = null;
     }
+
+	// --- 慣性（スムーズ回転） ---
+    camRotX += rotVelX;
+	camRotY += rotVelY;
+    rotVelX *= 0.9;
+    rotVelY *= 0.9;
+
+	// --- 角度制限（上下45°〜135°） ---
+    camRotX = constrain(camRotX, -1.2, 1.2);
+
+    // --- カメラ計算 ---
+    let camX = sin(camRotY) * cos(camRotX) * camDistance;
+    let camY = sin(camRotX) * camDistance;
+    let camZ = cos(camRotY) * cos(camRotX) * camDistance;
 
     camera(
       sin(camRotY) * cos(camRotX) * camDistance,
