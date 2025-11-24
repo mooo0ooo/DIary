@@ -26,6 +26,8 @@ let myFont;
 // 3Dカメラ
 let camPanX = 0; 
 let camPanY = 0; 
+let camRotX = 0;
+let camRotY = 0;
 let rotVelX = 0; 
 let rotVelY = 0;
 let camDistance = 600;
@@ -194,7 +196,7 @@ function setup() {
 	});
 
 	function styleButton(btn) {
-	  btn.style("font-family", myFont);
+	  btn.style("font-family", "'nicomoji'");
 	  btn.style("font-size", width < 600 ? "22px" : "18px");
 	  btn.style("padding", width < 600 ? "14px 20px" : "12px 18px");
 
@@ -215,7 +217,7 @@ function setup() {
 	  });
 	  btn.mouseOut(() => {
 		  btn.style("background", "rgba(255,255,255,0.15)");
-		  btn.style("box-shadow", "0 8px 26px rgba(0,0,0,0.25), inset0 0 18px rgba(255,255,255,0.2)");
+		  btn.style("box-shadow", "0 8px 26px rgba(0,0,0,0.25), inset 0 0 18px rgba(255,255,255,0.2)");
 		  btn.style("transform", "scale(1.0)");
 	  });
 	}
