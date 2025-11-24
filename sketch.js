@@ -175,14 +175,14 @@ function setup() {
 	    backButton.show();
 
 	    galleryStars = [];
-  　 for (let i = 0; i < 400; i++) {
-      　galleryStars.push({
-          x: random(-2000, 2000),
-		  y: random(-2000, 2000),
-		  z: random(-2000, 2000),
-		  twinkle: random(1000),
-		  baseSize: random(1, 4)
-        });
+        for (let i = 0; i < 400; i++) {
+	      　galleryStars.push({
+	          x: random(-2000, 2000),
+			  y: random(-2000, 2000),
+			  z: random(-2000, 2000),
+			  twinkle: random(1000),
+			  baseSize: random(1, 4)
+	     });
      }
   });
 
@@ -692,6 +692,7 @@ function mousePressed() {
 		
 		  return;
 		}
+}
 
 
 function touchStarted() {
@@ -845,59 +846,72 @@ function drawGallery2D() {
 }
 	
 function generateThumbnail(cons, size) {
-	let pg = createGraphics(size, size);
-	pg.background(5, 5, 20);
+  let pg = createGraphics(size, size);
+  pg.pixelDensity(1);
+  pg.background(5, 5, 20);
 
-	let ax = radians(-30);
-	let ay = radians(30);
+  // 投影角度（サムネ用）
+  let ax = radians(-30);
+  let ay = radians(30);
 
-	let projected = [];
-	let minX = 9999, maxX = -9999;
-	let minY = 9999, maxY = -9999;
+  let projected = [];
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (let s of cons.stars) {
+    let p = projectPoint(s.pos, ax, ay);
+    projected.push(p);
+    minX = min(minX, p.x);
+    maxX = max(maxX, p.x);
+    minY = min(minY, p.y);
+    maxY = max(maxY, p.y);
+  }
 
-	for (let s of cons.stars) {
-		let p = projectPoint(s.pos, ax, ay, 300);
-		projected.push(p);
-
-		minX = min(minX, p.x);
-		maxX = max(maxX, p.x);
-		minY = min(minY, p.y);
-		maxY = max(maxY, p.y);
-	}
-
-	let w = maxX - minX;
-	let h = maxY - minY;
-	let margin = 20;
-	let scaleFactor = (size - margin) / max(w, h);
-
-	pg.push();
-	pg.translate(size / 2, size / 2);
-	pg.scale(scaleFactor);
-
-	pg.translate(- (minX + maxX) / 2, -(minY + maxY) / 2);
-
-	// 線
-	pg.stroke(180, 200, 255, 90);
-	pg.strokeWeight(1 / scaleFactor);
-	pg.noFill();
-
-	for (let i = 0; i < cons.stars.length; i++) {
-	    for (let j = i + 1; j < cons.stars.length; j++) {
-	        let a = projected[i];
-	        let b = projected[j];
-	        pg.line(a.x, a.y, b.x, b.y);
-	    }
-	}
-
-	// 星
-	pg.noStroke();
-	pg.fill(255, 240, 200, 230);
-	for (let p of projected) {
-	    pg.circle(p.x, p.y, 5 / scaleFactor);
-	}
-	
-	pg.pop();
+  if (projected.length === 0) {
+    pg.noStroke();
+    pg.fill(255,20);
+    pg.rect(0,0,size,size);
     return pg;
+  }
+
+  let w = max(1e-6, maxX - minX);
+  let h = max(1e-6, maxY - minY);
+  let margin = size * 0.12;
+  let scaleFactor = (size - margin * 2) / max(w, h);
+
+  pg.push();
+  pg.translate(size / 2, size / 2);
+  pg.scale(scaleFactor);
+  pg.translate(- (minX + maxX) / 2, - (minY + maxY) / 2);
+
+  let k = 2;
+  pg.stroke(180, 200, 255, 90);
+  pg.strokeWeight(1 / scaleFactor);
+  pg.noFill();
+
+  for (let i = 0; i < projected.length; i++) {
+    let dists = [];
+    for (let j = 0; j < projected.length; j++) {
+      if (i === j) continue;
+      let dx = projected[i].x - projected[j].x;
+      let dy = projected[i].y - projected[j].y;
+      dists.push({ idx: j, d: dx*dx + dy*dy });
+    }
+    dists.sort((a,b) => a.d - b.d);
+    for (let n = 0; n < min(k, dists.length); n++) {
+      let b = projected[dists[n].idx];
+      let a = projected[i];
+      pg.line(a.x, a.y, b.x, b.y);
+    }
+  }
+
+  // 星
+  pg.noStroke();
+  pg.fill(255, 240, 200, 230);
+  for (let p of projected) {
+    pg.circle(p.x, p.y, 5 / scaleFactor);
+  }
+
+  pg.pop();
+  return pg;
 }
 
 function projectPoint(pos, ax, ay, size) {
@@ -918,69 +932,81 @@ function projectPoint(pos, ax, ay, size) {
 }
 
 function drawDetailPage() {
-	background(5, 5, 20);
-    if (!selectedConstellation) return;
+  background(5, 5, 20);
+  if (!selectedConstellation) return;
 
-    let t = (millis() - zoomStartTime) * 0.002;
-    let ease = min(1, t);
-    let scaleAnim = 0.5 + ease * 0.7 + 0.04 * sin(frameCount * 0.05);
+  let t = (millis() - zoomStartTime) * 0.002;
+  let ease = min(1, t);
+  let scaleAnim = 0.5 + ease * 0.7 + 0.04 * sin(frameCount * 0.05);
 
-    push();
-    translate(width/2, height/2);
-    scale(scaleAnim);
+  // 投影角度
+  let ax = radians(-30);
+  let ay = radians(30);
 
-	let ax = radians(-30);
-	let ay = radians(30);
+  let projected = selectedConstellation.stars.map(s => projectPoint(s.pos, ax, ay));
 
-	let projected = selectedConstellation.stars.map(s => projectPoint(s.pos, ax, ay));
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (let p of projected) {
+    minX = min(minX, p.x);
+    maxX = max(maxX, p.x);
+    minY = min(minY, p.y);
+    maxY = max(maxY, p.y);
+  }
+  if (!isFinite(minX)) return;
 
-	let minX = 9999, maxX = -9999, minY = 9999, maxY = -9999;
-	for (let p of projected) {
-	  minX = min(minX, p.x);
-	  maxX = max(maxX, p.x);
-	  minY = min(minY, p.y);
-	  maxY = max(maxY, p.y);
-	}
-	
-	let w = maxX - minX;
-	let h = maxY - minY;
-	
-	let drawingSize = 240;
-	let scaleFactor = drawingSize / max(w, h);
-	
-	translate(-(minX + maxX) / 2 * scaleFactor, -(minY + maxY) / 2 * scaleFactor);
-	scale(scaleFactor);
+  let w = max(1e-6, maxX - minX);
+  let h = max(1e-6, maxY - minY);
 
-	// 枠
-	stroke(150, 80);
-	strokeWeight(2);
-	noFill();
-	rectMode(CENTER);
-	rect(0, 0, 300, 300, 16);
-	let offsetX = -150;
-	let offsetY = -150;
+  // 描画エリアのサイズ
+  let drawingSize = 240;
+  let scaleFactor = drawingSize / max(w, h);
 
-	// 星
-    noStroke();
-	fill(255, 255, 200, 230);
-	for (let p of projected) {
-	  circle(p.x, p.y, 12 / scaleFactor + random(-0.5, 0.5));
-	}
+  push();
+  translate(width/2, height/2);
+  scale(scaleAnim);
 
-    // 線
-    stroke(180, 200, 255, 100);
-	strokeWeight(2 / scaleFactor);
-	for (let i = 0; i < projected.length; i++) {
-	  for (let j = i + 1; j < projected.length; j++) {
-	    line(projected[i].x, projected[i].y, projected[j].x, projected[j].y);
-	  }
-	}
-	
-	  pop();
+  translate(-(minX + maxX) / 2 * scaleFactor, -(minY + maxY) / 2 * scaleFactor);
+  scale(scaleFactor);
 
-	// 日付ラベル
-	fill(255);
-	textAlign(CENTER, TOP);
-	textSize(20);
-	text(selectedConstellation.created, width/2, 40);
+  // 枠
+  stroke(150, 80);
+  strokeWeight(2);
+  noFill();
+  rectMode(CENTER);
+  rect((minX+maxX)/2, (minY+maxY)/2, drawingSize, drawingSize, 16);
+
+  // 星）
+  noStroke();
+  fill(255, 255, 200, 230);
+  for (let p of projected) {
+    let jitter = random(-0.5, 0.5);
+    circle(p.x, p.y, 12 / scaleFactor + jitter);
+  }
+
+  stroke(180, 200, 255, 100);
+  strokeWeight(2 / scaleFactor);
+  for (let i = 0; i < projected.length; i++) {
+    let dists = [];
+    for (let j = 0; j < projected.length; j++) {
+      if (i === j) continue;
+      let dx = projected[i].x - projected[j].x;
+      let dy = projected[i].y - projected[j].y;
+      dists.push({ idx: j, d: dx*dx + dy*dy });
+    }
+    dists.sort((a,b) => a.d - b.d);
+    let k = 2;
+    for (let n = 0; n < min(k, dists.length); n++) {
+      let b = projected[dists[n].idx];
+      let a = projected[i];
+      line(a.x, a.y, b.x, b.y);
+    }
+  }
+
+  pop();
+
+  // 日付ラベル
+  fill(255);
+  textAlign(CENTER, TOP);
+  textSize(20);
+  text(selectedConstellation.created, width/2, 40);
 }
