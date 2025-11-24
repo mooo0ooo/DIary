@@ -1,24 +1,24 @@
 　let emotions = [
-  {en: "Relaxed", ja: "リラックス", P: 0.7, A: -0.6, D: 0.2},
-  {en: "Contented", ja: "満足", P: 0.6, A: -0.3, D: 0.1},
-  {en: "Calm", ja: "落ち着いた", P: 0.65, A: -0.5, D: 0.0},
-  {en: "Sleepy", ja: "眠い", P: 0.0, A: -0.9, D: -0.3},
-  {en: "Bored", ja: "退屈", P: -0.5, A: -0.6, D: -0.4},
-  {en: "Miserable", ja: "惨め", P: -0.85, A: -0.4, D: -0.6},
-  {en: "Unhappy", ja: "不幸", P: -0.7, A: -0.5, D:-0.4},
-  {en: "Annoyed", ja: "いらいら", P: 0.4, A: 0.2, D: -0.1},
-  {en: "Angry", ja: "怒り", P: -0.8, A: 0.6, D: 0.6},
-  {en: "Excited", ja: "興奮", P: 0.8, A: 0.9, D: 0.4},
-  {en: "Aroused", ja: "覚醒", P: 0.5, A: 0.8, D: 0.3},
-  {en: "Wide-awake", ja: "目が覚める", P: 0.1, A: 0.9, D: 0.0},
-  {en: "Frenzied", ja: "狂乱", P: -0.2, A: 0.95, D: -0.1},
-  {en: "Jittery", ja: "神経質", P: -0.5, A: 0.8, D: -0.2},
-  {en: "Fearful", ja: "恐れ", P: -0.9, A: 0.8, D: -0.6},
-  {en: "Anxious", ja: "不安", P: -0.7, A: 0.65, D: -0.5},
-  {en: "Dependent", ja: "依存", P: 0.2, A: -0.1, D: -0.6},
-  {en: "Controlled", ja: "支配されている", P: -0.3, A: -0.1, D: -0.8},
-  {en: "Influenced", ja: "影響される", P: -0.1, A: 0.0, D: -0.5},
-  {en: "Dominant", ja: "支配的", P: 0.1, A: 0.2, D: 0.8}
+	  {en: "Relaxed", ja: "リラックス", P: 0.7, A: -0.6, D: 0.2},
+	  {en: "Contented", ja: "満足", P: 0.6, A: -0.3, D: 0.1},
+	  {en: "Calm", ja: "落ち着いた", P: 0.65, A: -0.5, D: 0.0},
+	  {en: "Sleepy", ja: "眠い", P: 0.0, A: -0.9, D: -0.3},
+	  {en: "Bored", ja: "退屈", P: -0.5, A: -0.6, D: -0.4},
+	  {en: "Miserable", ja: "惨め", P: -0.85, A: -0.4, D: -0.6},
+	  {en: "Unhappy", ja: "不幸", P: -0.7, A: -0.5, D:-0.4},
+	  {en: "Annoyed", ja: "いらいら", P: 0.4, A: 0.2, D: -0.1},
+	  {en: "Angry", ja: "怒り", P: -0.8, A: 0.6, D: 0.6},
+	  {en: "Excited", ja: "興奮", P: 0.8, A: 0.9, D: 0.4},
+	  {en: "Aroused", ja: "覚醒", P: 0.5, A: 0.8, D: 0.3},
+	  {en: "Wide-awake", ja: "目が覚める", P: 0.1, A: 0.9, D: 0.0},
+	  {en: "Frenzied", ja: "狂乱", P: -0.2, A: 0.95, D: -0.1},
+	  {en: "Jittery", ja: "神経質", P: -0.5, A: 0.8, D: -0.2},
+	  {en: "Fearful", ja: "恐れ", P: -0.9, A: 0.8, D: -0.6},
+	  {en: "Anxious", ja: "不安", P: -0.7, A: 0.65, D: -0.5},
+	  {en: "Dependent", ja: "依存", P: 0.2, A: -0.1, D: -0.6},
+	  {en: "Controlled", ja: "支配されている", P: -0.3, A: -0.1, D: -0.8},
+	  {en: "Influenced", ja: "影響される", P: -0.1, A: 0.0, D: -0.5},
+	  {en: "Dominant", ja: "支配的", P: 0.1, A: 0.2, D: 0.8}
 ];
 
 let myFont;
@@ -731,6 +731,12 @@ function mousePressed() {
 	}
 }
 
+function touchStarted() {
+	if (state === "gallery") {
+		return mousePressed();
+	}
+}
+
 function polygon(x,y,r,n){
     beginShape();
     for(let i=0;i<n;i++){
@@ -927,30 +933,53 @@ function generateThumbnail(cons, size) {
 	let ax = radians(-30);
 	let ay = radians(30);
 
-	// 線
+	let projected = [];
+	let minX = 9999, maxX = -9999;
+	let minY = 9999, maxY = -9999;
+
+	for (let s of cons.stars) {
+		let p = projectPoint(s.pos, ax, ay, 300);
+		projected.push(p);
+
+		minX = min(minX, p.x);
+		maxX = max(maxX, p.x);
+		minY = min(minY, p.y);
+		maxY = max(maxY, p.y);
+	}
+
+	let w = maxX - minX;
+	let h = maxY - minY;
+	let margin = 20;
+	let scaleFactor = (size - margin) / max(w, h);
+
 	pg.push();
+	pg.translate(size / 2, size / 2);
+	pg.scale(scaleFactor);
+
+	pg.translate(- (minX + maxX) / 2, -(minY + maxY) / 2);
+
+	// 線
 	pg.stroke(180, 200, 255, 90);
-	pg.strokeWeight(1);
+	pg.strokeWeight(1 / scaleFactor);
 	pg.noFill();
 
 	for (let i = 0; i < cons.stars.length; i++) {
-	  for (let j = i+1; j < cons.stars.length; j++) {
-	    let a = projectPoint(cons.stars[i].pos, ax, ay, size);
-	    let b = projectPoint(cons.stars[j].pos, ax, ay, size);
-	    pg.line(a.x, a.y, b.x, b.y);
-	  }
+	    for (let j = i + 1; j < cons.stars.length; j++) {
+	        let a = projected[i];
+	        let b = projected[j];
+	        pg.line(a.x, a.y, b.x, b.y);
+	    }
 	}
 
 	// 星
 	pg.noStroke();
 	pg.fill(255, 240, 200, 230);
-	for (let s of cons.stars) {
-		let p = projectPoint(s.pos, ax, ay, size);
-		pg.circle(p.x, p.y, 5);
+	for (let p of projected) {
+	    pg.circle(p.x, p.y, 5 / scaleFactor);
 	}
-
+	
 	pg.pop();
-	return pg;
+    return pg;
 }
 
 function projectPoint (pos, ax, ay, size) {
