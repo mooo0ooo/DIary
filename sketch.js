@@ -337,7 +337,7 @@ function positionButtons() {
   );
 
   galleryButton.position(
-    windowWidth - galleryButton.width - 20,
+    windowWidth - galleryButton.width - 40,
     20
   );
 }
