@@ -327,8 +327,8 @@ function positionButtons() {
   );
 
   addButton.position(
-    windowHeight - addButton.height - 20,
-    20
+    20,
+    windowHeight - addButton.height - 20
   );
 
   backButton.position(
@@ -338,5 +338,6 @@ function positionButtons() {
 
   galleryButton.position(
     windowWidth - galleryButton.width - 20,
+    20
   );
 }
