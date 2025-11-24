@@ -47,7 +47,13 @@ function setup() {
   computeBtnSize();
   positionButtons();
 
-  addButton.touchStarted(addPAD);
+  // ← 重要修正：追加ボタンは PAD を「開くだけ」にする（星生成はここでは行わない）
+  addButton.touchStarted(() => {
+    state = "select";      // PAD 画面へ遷移
+    selectedLabel = null;  // 選択ラベルクリア
+    // もし PAD 初期化等が必要ならここで行う（addPAD を直接呼ばない）
+    // 例: initPAD(); があれば呼ぶ（ただし initPAD が星を生成しないことを確認）
+  });
 
   okButton.touchStarted(() => {
     if (padValues.length > 0) {
@@ -67,7 +73,7 @@ function setup() {
       });
 
       let newConstellation = { stars: serialStars, created: timestamp };
-      allConstellations.push(newConstellation);
+      allConstellations.push(newConstellation); // ← 星生成はここだけ
       localStorage.setItem("myConstellations", JSON.stringify(allConstellations));
 
       state = "visual";
@@ -106,13 +112,29 @@ function windowResized() {
   positionButtons();
 }
 
+function formatDate(date) {
+  const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  let y = date.getFullYear();
+  let m = String(date.getMonth() + 1).padStart(2, "0");
+  let d = String(date.getDate()).padStart(2, "0");
+  let day = days[date.getDay()];
+  let hh = String(date.getHours()).padStart(2, "0");
+  let mm = String(date.getMinutes()).padStart(2, "0");
+
+  return `${y}. ${m}. ${d} (${day}) ${hh}:${mm}`;
+}
+
 function draw() {
   background(5,5,20);
 
+  // ----------------
+  // VISUAL MODE 
+  // ----------------
   if (state === "visual") {
+    // 背景のキラキラ星
     drawBackgroundStars();
-    drawVisualMode();
-    
+
+    // 3Dカメラ操作（更新は draw 内で）
     camRotX += rotVelX;
     camRotY += rotVelY;
     rotVelX *= 0.9;
@@ -122,7 +144,13 @@ function draw() {
     let camPos = computeCameraPosition();
     camera(camPos.x, camPos.y, camPos.z, camPanX, camPanY, 0, 0, 1, 0);
 
+    // 立方体+星などを描画する関数（既存）
+    drawVisualMode();
+
+    // 2D描画用に変換リセットしてラベルを描画
     resetMatrix();
+
+    // 星の感情ラベル（左上） — 既存ロジックを維持
     if (selectedLabel) {
       noLights();
       textAlign(LEFT, TOP);
@@ -130,6 +158,18 @@ function draw() {
       fill(255);
       text(selectedLabel, 20, 20);
     }
+
+    // 日付ラベルを画面下中央に表示（最後に保存された星座の created を出す）
+    if (allConstellations.length > 0) {
+      let lastCreated = allConstellations[allConstellations.length - 1].created || "";
+      noLights();
+      textAlign(CENTER, BOTTOM);
+      textSize(16);
+      fill(220);
+      // WEBGLモードでも resetMatrix() 後はキャンバス左上が (0,0) なので width/2 を使う
+      text(lastCreated, width / 2, height - 40);
+    }
+
     return;
   }
 
