@@ -789,6 +789,8 @@ function screenPos(x, y, z) {
 
 function drawGallery2D() {
     background(5, 5, 20); 
+
+	let galleryScale = min(1, width / 430);
 	
     push();
 	noStroke();
