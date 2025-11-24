@@ -4,7 +4,6 @@ let addButton, okButton, backButton, galleryButton;
 let allConstellations = [];
 let selectedLabel = null;
 
-let lastX = null, lastY = null;
 let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
 let touchMovedFlag = false;
 
