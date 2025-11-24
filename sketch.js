@@ -282,11 +282,11 @@ function draw() {
   resetMatrix();
   camera();
 
-　if (state === "detail") {
+  if (state === "detail") {
 	 closeDetailButton.show();
 	 drawDetailPage();
 	 return;
- }
+  }
 
   if (state === "visual") {
     let mx = mouseX;
@@ -981,21 +981,21 @@ function generateThumbnail(cons, size) {
     return pg;
 }
 
-function projectPoint (pos, ax, ay, size) {
-	let x = pos.x;
-    let y = pos.y;
-    let z = pos.z;
-
-    let ry = y * cos(ax) - z * sin(ax);
-    let rz = y * sin(ax) + z * cos(ax);
-
-    let rx = x * cos(ay) - rz * sin(ay);
-    rz = x * sin(ay) + rz * cos(ay);
-
-    let px = map(rx, -120, 120, 10, size - 10);
-    let py = map(ry, -120, 120, 10, size - 10);
-
-    return createVector(px, py);
+function projectPoint(pos, ax, ay, size) {
+	  let x = pos.x;
+	  let y = pos.y;
+	  let z = pos.z;
+	
+	  let ry = y * cos(ax) - z * sin(ax);
+	  let rz = y * sin(ax) + z * cos(ax);
+	
+	  let rx = x * cos(ay) - rz * sin(ay);
+	  rz = x * sin(ay) + rz * cos(ay);
+	
+	  let px = rx;
+	  let py = ry;
+	
+	  return createVector(px, py);
 }
 
 function drawDetailPage() {
@@ -1013,6 +1013,25 @@ function drawDetailPage() {
 	let ax = radians(-30);
 	let ay = radians(30);
 
+	let projected = selectedConstellation.stars.map(s => projectPoint(s.pos, ax, ay));
+
+	let minX = 9999, maxX = -9999, minY = 9999, maxY = -9999;
+	for (let p of projected) {
+	  minX = min(minX, p.x);
+	  maxX = max(maxX, p.x);
+	  minY = min(minY, p.y);
+	  maxY = max(maxY, p.y);
+	}
+	
+	let w = maxX - minX;
+	let h = maxY - minY;
+	
+	let drawingSize = 240;
+	let scaleFactor = drawingSize / max(w, h);
+	
+	translate(-(minX + maxX) / 2 * scaleFactor, -(minY + maxY) / 2 * scaleFactor);
+	scale(scaleFactor);
+
 	// 枠
 	stroke(150, 80);
 	strokeWeight(2);
@@ -1025,28 +1044,17 @@ function drawDetailPage() {
 	// 星
     noStroke();
 	fill(255, 255, 200, 230);
-	for (let s of selectedConstellation.stars) {
-		let p = projectPoint(s.pos, ax, ay, 300);
-		let drawX = p.x + offsetX;
-		let drawY = p.y + offsetY;
-		circle(drawX, drawY, 12 + random(-1, 1));
+	for (let p of projected) {
+	  circle(p.x, p.y, 12 / scaleFactor + random(-0.5, 0.5));
 	}
 
     // 線
     stroke(180, 200, 255, 100);
-	strokeWeight(2);
-	for (let i = 0; i < selectedConstellation.stars.length; i++) {
-		for (let j = i + 1; j < selectedConstellation.stars.length; j++) {
-			let pa = projectPoint(selectedConstellation.stars[i].pos, ax, ay, 300);
-			let pb = projectPoint(selectedConstellation.stars[j].pos, ax, ay, 300);
-
-			let ax2 = pa.x + offsetX;
-			let ay2 = pa.y + offsetY;
-			let bx2 = pb.x + offsetX;
-			let by2 = pb.y + offsetY;
-
-			line(ax2, ay2, bx2, by2);
-		}
+	strokeWeight(2 / scaleFactor);
+	for (let i = 0; i < projected.length; i++) {
+	  for (let j = i + 1; j < projected.length; j++) {
+	    line(projected[i].x, projected[i].y, projected[j].x, projected[j].y);
+	  }
 	}
 	
 	  pop();
