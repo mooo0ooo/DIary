@@ -17,7 +17,7 @@ function setup() {
   textFont(myFont);
   textSize(16);
 
-  et saved = localStorage.getItem("myConstellations");
+  let saved = localStorage.getItem("myConstellations");
   if (saved) {
     try {
       allConstellations = JSON.parse(saved);
