@@ -194,20 +194,30 @@ function setup() {
 	});
 
 	function styleButton(btn) {
-	  btn.style("font-family", "nicomoji-plus_v2-5.ttf");
+	  btn.style("font-family", myFont);
 	  btn.style("font-size", width < 600 ? "22px" : "18px");
 	  btn.style("padding", width < 600 ? "14px 20px" : "12px 18px");
-	
+
+	  // ボタンデザイン
 	  btn.style("color", "white");
-	  btn.style("background", "rgba(120,150,255,0.35)");
-	  btn.style("backdrop-filter", "blur(6px)");
-	  btn.style("border", "none");
-	  btn.style("border-radius", "12px");
-	  btn.style("box-shadow", "0 0 12px rgba(150,180,255,0.6)");
-	  btn.style("transition", "0.2s");
+	  btn.style("background", "rgba(255,255,255,0.15)");
+	  btn.style("backdrop-filter", "blur(12px)");
+	  btn.style("-webkit-backdrop-filter", "blur(12px)");
+	  btn.style("border", "1px solid rgba(255,255,255,0.35)");
+	  btn.style("border-radius", "14px");
+	  btn.style("box-shadow", "0 8px 26px rgba(0,0,0,0.25), inset 0 0 18px rgba(255,255,255,0.2)");
+	  btn.style("transition", "0.25s");
 	
-	  btn.mouseOver(() => btn.style("background", "rgba(160,180,255,0.55)"));
-	  btn.mouseOut(() => btn.style("background", "rgba(120,150,255,0.35)"));
+	  btn.mouseOver(() => {
+		  btn.style("background", "rgba(255,255,255,0.25)"));
+		  btn.style("box-shadow", "0 8px 28px rgba(0,0,0,0.35), inset 0 0 24px rgba(255,255,255,0.3)");
+		  btn.style("transform", "scale(1.05)");
+	  });
+	  btn.mouseOut(() => {
+		  btn.style("background", "rgba(255,255,255,0.15)"));
+		  btn.style("box-shadow", "0 8px 26px rgba(0,0,0,0.25), inset0 0 18px rgba(255,255,255,0.2)");
+		  btn.style("transform", "scale(1.0)");
+	  });
 	}
 
 	styleButton(addButton);
