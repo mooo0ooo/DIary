@@ -209,7 +209,7 @@ function setup() {
 	  btn.style("transition", "0.25s");
 	
 	  btn.mouseOver(() => {
-		  btn.style("background", "rgba(255,255,255,0.25)"));
+		  btn.style("background", "rgba(255,255,255,0.25)");
 		  btn.style("box-shadow", "0 8px 28px rgba(0,0,0,0.35), inset 0 0 24px rgba(255,255,255,0.3)");
 		  btn.style("transform", "scale(1.05)");
 	  });
