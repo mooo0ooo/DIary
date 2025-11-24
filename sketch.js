@@ -279,7 +279,6 @@ function prepareVisual() {
 
 function draw() {
   background(5,5,20);
-
   resetMatrix();
   camera();
 
@@ -355,26 +354,38 @@ function draw() {
   }
 
   // ★ 星空描画
-  push(); 
-  noStroke();
-  for (let s of stars) {
-    if (random() < 0.02) s.on = !s.on;
-    if (s.baseSize === undefined) s.baseSize = random(1.0, 4.0);
-    let blink = (s.on ? 1 : 0);
-    let pulse = 0.5 + 0.5 * sin(frameCount * 0.02 + s.twinkle);
-    let intensity = blink * pulse;
-    let starSize = s.baseSize + intensity * random(0.5, 2.0);
-    let alpha = map(intensity, 0, 1, 10, 255);
-    let r = 200 + random(-20, 20);
-    let g = 200 + random(-20, 20);
-    let b = 255;
-    fill(r, g, b, alpha);
-    push();
-    translate(s.x, s.y, s.z);
-    sphere(starSize);
-    pop();
-  }
-  pop();
+	push();
+	noStroke();
+	
+	for (let s of stars) {
+	  let temp = s.temp || (s.temp = random(0, 1));
+	  let col = lerpColor(color(255, 180, 130), color(180, 200, 255), temp);
+
+	  let tw = noise(s.twinkle + frameCount * 0.01);
+	  let flicker = map(tw, 0, 1, 0.3, 1.2);
+	
+	  let starSize = s.baseSize * flicker;
+	  let alpha = map(flicker, 0.3, 1.2, 80, 255);
+	
+	  fill(red(col), green(col), blue(col), alpha);
+	
+	  push();
+	  translate(s.x, s.y, s.z);
+	  sphere(starSize * 1.2);
+	  pop();
+	}
+	
+	if (random() < 0.004) {
+	  push();
+	  stroke(255, 255, 200, 180);
+	  strokeWeight(2);
+	  let sx = random(-2000, 2000);
+	  let sy = random(-2000, 2000);
+	  let sz = random(-1000, 500);
+	  line(sx, sy, sz, sx + 80, sy + 40, sz - 40);
+	  pop();
+	}
+	pop();
 
   if (allConstellations.length === 0) return;
 
@@ -771,28 +782,41 @@ function screenPos(x, y, z) {
 }
 
 function drawGallery2D() {
-  resetMatrix();
-  camera();
+    resetMatrix();
+    camera();
 	
-  background(5, 5, 20); 
+    background(5, 5, 20); 
 	
-  push(); 
-  noStroke(); 
-  for (let s of galleryStars) { 
-	  if (random() < 0.02) s.on = !s.on; 
-	  let pulse = 0.5 + 0.5 * sin(frameCount * 0.02 + s.twinkle); 
-	  let starSize = s.baseSize + pulse * random(0.5, 2); 
-	  let sx = width/2 + s.x * 0.08;
-	  let sy = height/2 + s.y * 0.08;
-	  fill(200 + random(-15, 15), 200 + random(-15, 15), 255, 180); 
-	  circle(sx, sy, starSize * 2); 
-  }
-  pop();
+    push();
+	noStroke();
 	
-  translate(-width / 2, -height / 2);
+	for (let s of galleryStars) {
+	
+　  let temp = s.temp || (s.temp = random(0, 1));
+	let col = lerpColor(color(255, 190, 140), color(170, 200, 255), temp);
+	
+　  let tw = noise(s.twinkle + frameCount * 0.01);
+    let flicker = map(tw, 0, 1, 0.4, 1.3);
+	
+	let starSize = s.baseSize * flicker;
+	let sx = width/2 + s.x * 0.08;
+	let sy = height/2 + s.y * 0.08;
+	let alpha = map(flicker, 0.4, 1.3, 50, 230);
+	
+	fill(red(col), green(col), blue(col), alpha);
+	circle(sx, sy, starSize * 2);
+}
 
-  let designWidth = 430;
-  let galleryScale = min(1, width / designWidth);
+    if (random() < 0.004) {
+	  push();
+	  stroke(255, 240, 200, 200);
+	  strokeWeight(2);
+	  let sx = random(0, width);
+	  let sy = random(0, height);
+	  line(sx, sy, sx + 40, sy + 20);
+	  pop();
+	}
+	pop();
 
   // スクロール
   scrollY = lerp(scrollY, targetScrollY, 0.4);
