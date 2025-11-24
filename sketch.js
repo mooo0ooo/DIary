@@ -779,7 +779,7 @@ function drawGallery2D() {
 	  fill(200 + random(-20, 20), 200 + random(-20, 20), 255, 180); 
 	  push(); 
 	  translate(s.x, s.y); 
-	  ciecle(0, 0, starSize * 2);
+	  circle(0, 0, starSize * 2);
 	  pop(); 
   }
 	pop();
