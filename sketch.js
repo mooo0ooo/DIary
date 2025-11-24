@@ -914,8 +914,8 @@ function drawDetailPage() {
     scale(scaleAnim);
 
 	// 枠
-	stroke(255, 255, 255, 25);
-	strokeWeight(4);
+	stroke(150, 80);
+	strokeWeight(2);
 	noFill();
 	rectMode(CENTER);
 	rect(0, 0, 300, 300, 16);
