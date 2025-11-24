@@ -266,6 +266,12 @@ function prepareVisual() {
 function draw() {
   background(5,5,20);
 
+　if (state === "detail") {
+	 closeDetailButton.show();
+	 drawDetailPage();
+	 return;
+ }
+
   if (state === "visual") {
     let mx = mouseX;
     let my = mouseY;
