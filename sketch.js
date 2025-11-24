@@ -35,14 +35,12 @@ function setup() {
   okButton.style('position','absolute'); okButton.style('z-index','10');
   backButton = createButton("← 記録ページ");
   backButton.style('position','absolute'); backButton.style('z-index','10'); backButton.hide();
-
   galleryButton = createButton("日記一覧");
   galleryButton.style('position','absolute'); galleryButton.style('z-index','10');
-  galleryButton.position(width - 130, 20);
 
   styleButton(addButton); styleButton(okButton); styleButton(backButton); styleButton(galleryButton);
-  layoutDOMButtons(addButton, okButton, backButton);
   computeBtnSize();
+  positionButtons();
 
   addButton.touchStarted(addPAD);
 
@@ -90,8 +88,7 @@ function setup() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  layoutDOMButtons(addButton, okButton, backButton);
-  computeBtnSize();
+  positionButton();
 }
 
 function draw() {
@@ -322,4 +319,25 @@ function mouseWheel(event) {
     camDistance = constrain(camDistance, 200, 2000);
   }
   return false;
+}
+
+function positionButtons() {
+  okButton.position(
+    windowWidth / 2 - okButton.width / 2,
+    windowHeight - okButton.height - 20
+  );
+
+  addButton.position(
+    20,
+    windowHeight - addButton.height - 20
+  );
+
+  backButton.position(
+    20,
+    20
+  );
+
+  galleryButton.position(
+    windowWidth - galleryButton.width - 20,
+  );
 }
