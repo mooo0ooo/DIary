@@ -4,6 +4,10 @@ let addButton, okButton, backButton, galleryButton;
 let allConstellations = [];
 let selectedLabel = null;
 
+let lastX = null, lastY = null;
+let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
+let touchMovedFlag = false;
+
 function preload() {
   myFont = loadFont("nicomoji-plus_v2-5.ttf");
 }
@@ -13,7 +17,7 @@ function setup() {
   textFont(myFont);
   textSize(16);
 
-  let saved = localStorage.getItem("myConstellations");
+  et saved = localStorage.getItem("myConstellations");
   if (saved) {
     try {
       allConstellations = JSON.parse(saved);
@@ -24,7 +28,7 @@ function setup() {
     }
   }
 
-  // DOM ボタン作成
+  // ボタン作成
   addButton = createButton("追加");
   addButton.style('position','absolute'); addButton.style('z-index','10');
   okButton = createButton("OK");
@@ -34,20 +38,17 @@ function setup() {
 
   galleryButton = createButton("日記一覧");
   galleryButton.style('position','absolute'); galleryButton.style('z-index','10');
-  galleryButton.position(width-130, 20);
+  galleryButton.position(width - 130, 20);
 
-  // ボタンスタイル
   styleButton(addButton); styleButton(okButton); styleButton(backButton); styleButton(galleryButton);
   layoutDOMButtons(addButton, okButton, backButton);
   computeBtnSize();
 
-  // イベント
-  addButton.mousePressed(addPAD);
+  addButton.touchStarted(addPAD);
 
-  okButton.mousePressed(() => {
+  okButton.touchStarted(() => {
     if (padValues.length > 0) {
       prepareVisual();
-      // prepare serial stars and save
       let now = new Date();
       let y = now.getFullYear();
       let m = String(now.getMonth() + 1).padStart(2, "0");
@@ -61,30 +62,29 @@ function setup() {
       let serialStars = points.map(s => {
         return { pos: { x: s.pos.x, y: s.pos.y, z: s.pos.z }, emo: s.emo };
       });
+
       let newConstellation = { stars: serialStars, created: timestamp };
       allConstellations.push(newConstellation);
       localStorage.setItem("myConstellations", JSON.stringify(allConstellations));
 
-      // switch to visual
       state = "visual";
       addButton.hide(); okButton.hide(); backButton.show();
       visualStartTime = millis();
     }
   });
 
-  backButton.mousePressed(() => {
+  backButton.touchStarted(() => {
     state = "select";
     addButton.show(); okButton.show(); backButton.hide();
     selectedLabel = null;
   });
 
-  galleryButton.mousePressed(() => {
+  galleryButton.touchStarted(() => {
     state = "gallery";
     addButton.hide(); okButton.hide(); backButton.show();
-    galleryStars = []; // reset background stars for gallery
+    galleryStars = []; // reset gallery background stars
   });
 
-  // compute initial stars / layout
   computeBtnSize();
 }
 
@@ -97,35 +97,19 @@ function windowResized() {
 function draw() {
   background(5,5,20);
 
-  // UI: show selected label if any (for visual state)
   if (state === "visual") {
-    // camera control + stars + constellations
-    // handle mouse/touch camera motion (same behavior as original)
-    let mx = mouseX, my = mouseY;
-    if (touches.length > 0) { mx = touches[0].x; my = touches[0].y; }
-    let isPan = (mouseButton === RIGHT) || (touches.length >= 2);
-
-    if (mouseIsPressed || touches.length > 0) {
-      if (lastX !== null && lastY !== null) {
-        let dx = mx - lastX, dy = my - lastY;
-        if (isPan) { camPanX += dx * 0.5; camPanY += dy * 0.5; }
-        else { camRotY += dx * 0.005; camRotX += dy * 0.005; rotVelX = dx * 0.002; rotVelY = dy * 0.002; }
-      }
-      lastX = mx; lastY = my;
-    } else { lastX = null; lastY = null; }
-
-    camRotX += rotVelX; camRotY += rotVelY;
-    rotVelX *= 0.9; rotVelY *= 0.9;
+    camRotX += rotVelX;
+    camRotY += rotVelY;
+    rotVelX *= 0.9;
+    rotVelY *= 0.9;
     camRotX = constrain(camRotX, -1.2, 1.2);
 
     let camPos = computeCameraPosition();
     camera(camPos.x, camPos.y, camPos.z, camPanX, camPanY, 0, 0, 1, 0);
 
-    // draw visual scene
     drawVisualMode();
 
-    // UI overlay: selectedLabel
-    resetMatrix(); // reset to 2D
+    resetMatrix();
     if (selectedLabel) {
       noLights();
       textAlign(LEFT, TOP);
@@ -136,22 +120,94 @@ function draw() {
     return;
   }
 
+  // ----------------
+  // SELECT MODE (PAD UI)
+  // ----------------
   if (state === "select") {
-    // use 2D-like UI: reset camera
-    camera();
+    camera(); // reset camera for 2D-like UI
     drawPADButtons();
     return;
   }
 
+  // ----------------
+  // GALLERY MODE (2D)
+  // ----------------
   if (state === "gallery") {
-    // 2D gallery draw (note: gallery.js expects allConstellations passed)
     resetMatrix();
     drawGallery2D(allConstellations);
     return;
   }
 }
 
-function mousePressed() {
+function touchStarted() {
+  touchMovedFlag = false;
+  touchStartTime = millis();
+  if (touches && touches.length > 0) {
+    touchStartX = touches[0].x;
+    touchStartY = touches[0].y;
+    lastX = touchStartX;
+    lastY = touchStartY;
+  }
+
+  return false;
+}
+
+function touchMoved() {
+  touchMovedFlag = true;
+
+  if (touches && touches.length > 0 && state === "visual") {
+    let mx = touches[0].x;
+    let my = touches[0].y;
+
+    if (lastX !== null && lastY !== null) {
+      let dx = mx - lastX;
+      let dy = my - lastY;
+
+      let isPan = (touches.length >= 2);
+      if (isPan) {
+        camPanX += dx * 0.5;
+        camPanY += dy * 0.5;
+      } else {
+        camRotY += dx * 0.005;
+        camRotX += dy * 0.005;
+        rotVelX = dx * 0.002;
+        rotVelY = dy * 0.002;
+      }
+    }
+
+    lastX = mx;
+    lastY = my;
+  }
+
+  return false; 
+}
+
+function touchEnded() {
+  let duration = millis() - touchStartTime;
+  let moved = touchMovedFlag;
+  let tapThresholdMs = 300;
+  let moveThresholdPx = 8;
+
+  let endX = (touches && touches.length > 0) ? touches[0].x : lastX;
+  let endY = (touches && touches.length > 0) ? touches[0].y : lastY;
+
+  if (!moved && duration <= tapThresholdMs) {
+    let dx = (endX !== null && touchStartX !== null) ? abs(endX - touchStartX) : 0;
+    let dy = (endY !== null && touchStartY !== null) ? abs(endY - touchStartY) : 0;
+    if (dx <= moveThresholdPx && dy <= moveThresholdPx) {
+      handleTap(touchStartX, touchStartY);
+    }
+  }
+
+  lastX = null;
+  lastY = null;
+
+  return false;
+}
+
+function handleTap(x, y) {
+  if (x == null || y == null) return;
+
   if (state === "visual") {
     if (allConstellations.length === 0) return;
     let last = allConstellations[allConstellations.length - 1];
@@ -162,7 +218,7 @@ function mousePressed() {
       let py = p.pos?.y ?? 0;
       let pz = p.pos?.z ?? 0;
       let sp = screenPos(px, py, pz);
-      let d = dist(mouseX, mouseY, sp.x, sp.y);
+      let d = dist(x, y, sp.x, sp.y);
       if (d < minDist) { minDist = d; nearest = p; }
     }
     if (nearest) {
@@ -170,41 +226,56 @@ function mousePressed() {
       selectedLabel = emo.en + "(" + (emo.ja || "") + ")";
     }
     return;
-  } else if (state === "select") {
-    let mx = (mouseX - width/2) / padLayout.scl;
-    let my = (mouseY - height/2) / padLayout.scl;
+  }
+
+  if (state === "select") {
+    // convert page coords -> padLayout coords (we used width/2, height/2 center)
+    let mx = (x - width/2) / padLayout.scl;
+    let my = (y - height/2) / padLayout.scl;
     let cx = padLayout.cx, cy = padLayout.cy;
-    // P 行
+
+    // P
     for (let i = 0; i < 7; i++) {
       let bx = cx + (i-3)*(padLayout.btnSize+padLayout.spacing);
       let by = cy - 120;
       if (mx > bx - padLayout.btnSize/2 && mx < bx + padLayout.btnSize/2 &&
           my > by - padLayout.btnSize/2 && my < by + padLayout.btnSize/2) {
         selectedP = i;
+        return;
       }
     }
-    // A 行 (円判定)
+
+    // A
     for (let i = 0; i < 7; i++) {
       let bx = cx + (i-3)*(padLayout.btnSize+padLayout.spacing);
       let by = cy;
-      if (dist(mx, my, bx, by) < padLayout.btnSize/2) selectedA = i;
+      if (dist(mx, my, bx, by) < padLayout.btnSize/2) {
+        selectedA = i;
+        return;
+      }
     }
-    // D 行
+
+    // D
     for (let i = 0; i < 7; i++) {
       let bx = cx + (i-3)*(padLayout.btnSize+padLayout.spacing);
       let by = cy + 120;
-      if (dist(mx, my, bx, by) < padLayout.btnSize/2) selectedD = i;
+      if (dist(mx, my, bx, by) < padLayout.btnSize/2) {
+        selectedD = i;
+        return;
+      }
     }
     return;
-  } else if (state === "gallery") {
-    let y = topOffset + scrollY;
+  }
+
+  if (state === "gallery") {
+    let yOff = topOffset + scrollY;
     let maxThumb = 160;
     let colCount = floor((width - outerPad * 2) / (maxThumb + gutter));
     colCount = constrain(colCount, 1, 5);
     let thumbSize = floor((width - outerPad * 2 - gutter * (colCount - 1)) / colCount);
     thumbSize = constrain(thumbSize, 60, maxThumb);
-    let mx = mouseX, my = mouseY;
 
+    let mx = x, my = y;
     let grouped = {};
     for (let i=0;i<12;i++) grouped[i] = [];
     for (let c of allConstellations) {
@@ -216,15 +287,15 @@ function mousePressed() {
     for (let month = 0; month < 12; month++) {
       let list = grouped[month];
       if (list.length === 0) continue;
-      y += 40;
+      yOff += 40;
       let index = 0;
       let rows = ceil(list.length / colCount);
       for (let cons of list) {
         let col = index % colCount;
         let row = floor(index / colCount);
-        let x = outerPad + col * (thumbSize + gutter);
-        let ty = y + row * (thumbSize + 35);
-        if (mx > x && mx < x + thumbSize && my > ty && my < ty + thumbSize) {
+        let x0 = outerPad + col * (thumbSize + gutter);
+        let ty = yOff + row * (thumbSize + 35);
+        if (mx > x0 && mx < x0 + thumbSize && my > ty && my < ty + thumbSize) {
           selectedLabel = cons.created + " (selected)";
           state = "visual";
           addButton.show(); okButton.show(); backButton.hide();
@@ -232,7 +303,7 @@ function mousePressed() {
         }
         index++;
       }
-      y += rows * (thumbSize + 35) + 40;
+      yOff += rows * (thumbSize + 35) + 40;
     }
     return;
   }
@@ -250,10 +321,5 @@ function mouseWheel(event) {
     camDistance += event.delta * 0.9;
     camDistance = constrain(camDistance, 200, 2000);
   }
-  return false;
-}
-
-function touchStarted() {
-  if (state === "gallery") return mousePressed();
   return false;
 }
