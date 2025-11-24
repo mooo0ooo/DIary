@@ -1,0 +1,22 @@
+let emotions = [
+  {en: "Relaxed", ja: "リラックス", P: 0.7, A: -0.6, D: 0.2},
+  {en: "Contented", ja: "満足", P: 0.6, A: -0.3, D: 0.1},
+  {en: "Calm", ja: "落ち着いた", P: 0.65, A: -0.5, D: 0.0},
+  {en: "Sleepy", ja: "眠い", P: 0.0, A: -0.9, D: -0.3},
+  {en: "Bored", ja: "退屈", P: -0.5, A: -0.6, D: -0.4},
+  {en: "Miserable", ja: "惨め", P: -0.85, A: -0.4, D: -0.6},
+  {en: "Unhappy", ja: "不幸", P: -0.7, A: -0.5, D:-0.4},
+  {en: "Annoyed", ja: "いらいら", P: 0.4, A: 0.2, D: -0.1},
+  {en: "Angry", ja: "怒り", P: -0.8, A: 0.6, D: 0.6},
+  {en: "Excited", ja: "興奮", P: 0.8, A: 0.9, D: 0.4},
+  {en: "Aroused", ja: "覚醒", P: 0.5, A: 0.8, D: 0.3},
+  {en: "Wide-awake", ja: "目が覚める", P: 0.1, A: 0.9, D: 0.0},
+  {en: "Frenzied", ja: "狂乱", P: -0.2, A: 0.95, D: -0.1},
+  {en: "Jittery", ja: "神経質", P: -0.5, A: 0.8, D: -0.2},
+  {en: "Fearful", ja: "恐れ", P: -0.9, A: 0.8, D: -0.6},
+  {en: "Anxious", ja: "不安", P: -0.7, A: 0.65, D: -0.5},
+  {en: "Dependent", ja: "依存", P: 0.2, A: -0.1, D: -0.6},
+  {en: "Controlled", ja: "支配されている", P: -0.3, A: -0.1, D: -0.8},
+  {en: "Influenced", ja: "影響される", P: -0.1, A: 0.0, D: -0.5},
+  {en: "Dominant", ja: "支配的", P: 0.1, A: 0.2, D: 0.8}
+];
