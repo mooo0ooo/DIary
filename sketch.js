@@ -327,8 +327,8 @@ function positionButtons() {
   );
 
   addButton.position(
-    20,
-    windowHeight - addButton.height - 20
+    windowHeight - addButton.height - 20,
+    20
   );
 
   backButton.position(
