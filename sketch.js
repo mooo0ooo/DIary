@@ -324,11 +324,11 @@ function draw() {
     let camZ = cos(camRotY) * cos(camRotX) * camDistance;
 
     camera(
-      sin(camRotY) * cos(camRotX) * camDistance,
-      sin(camRotX) * camDistance,
-      cos(camRotY) * cos(camRotX) * camDistance,
-      0, 0, 0,
-      0, 1, 0
+		camX + camPanX,
+		camY + camPanY,
+		camZ,
+		camPanX, camPanY, 0,
+		0, 1, 0
     );
   }
 
@@ -492,12 +492,12 @@ function mouseWheel(event) {
 	    camDistance = constrain(camDistance, 200, 2000);
 	 }
 	
-    return false;
-
 	if (state === "detail") {
 		drawDetailPage();
 		return;
 	}
+
+	return false;
 }
 
 function drawPADButtons(){
@@ -768,8 +768,8 @@ function drawGallery2D() {
 	  let starSize = s.baseSize + pulse * random(0.5, 2); 
 	  fill(200 + random(-20, 20), 200 + random(-20, 20), 255, 180); 
 	  push(); 
-	  translate(s.x, s.y, s.z); 
-	  sphere(starSize); 
+	  translate(s.x, s.y); 
+	  ciecle(0, 0, starSize * 2);
 	  pop(); 
   }
 	pop();
@@ -895,11 +895,11 @@ function generateThumbnail(cons, size) {
 	pg.noFill();
 
 	for (let i = 0; i < cons.stars.length; i++) {
-		for (let j = 0; j < cons.stars.length; j++) {
-			let a = projectPoint(cons.stars[i].pos, ax, ay, size);
-			let b = projectPoint(cons.stars[j].pos, ax, ay, size);
-			pg.line(a.x, a.y, b.x, b.y);
-		}
+	  for (let j = i+1; j < cons.stars.length; j++) {
+	    let a = projectPoint(cons.stars[i].pos, ax, ay, size);
+	    let b = projectPoint(cons.stars[j].pos, ax, ay, size);
+	    pg.line(a.x, a.y, b.x, b.y);
+	  }
 	}
 
 	// 星
@@ -916,19 +916,19 @@ function generateThumbnail(cons, size) {
 
 function projectPoint (pos, ax, ay, size) {
 	let x = pos.x;
-  let y = pos.y;
-  let z = pos.z;
+    let y = pos.y;
+    let z = pos.z;
 
-  let ry = y * cos(ax) - z * sin(ax);
-  let rz = y * sin(ax) + z * cos(ax);
+    let ry = y * cos(ax) - z * sin(ax);
+    let rz = y * sin(ax) + z * cos(ax);
 
-  let rx = x * cos(ay) - rz * sin(ay);
-  rz = x * sin(ay) + rz * cos(ay);
+    let rx = x * cos(ay) - rz * sin(ay);
+    rz = x * sin(ay) + rz * cos(ay);
 
-  let px = map(rx, -120, 120, 10, size - 10);
-  let py = map(ry, -120, 120, 10, size - 10);
+    let px = map(rx, -120, 120, 10, size - 10);
+    let py = map(ry, -120, 120, 10, size - 10);
 
-  return createVector(px, py);
+    return createVector(px, py);
 }
 
 function drawDetailPage() {
@@ -955,25 +955,35 @@ function drawDetailPage() {
 	noFill();
 	rectMode(CENTER);
 	rect(0, 0, 300, 300, 16);
+	let offsetX = -150;
+	let offsetY = -150;
 
 	// 星
     noStroke();
 	fill(255, 255, 200, 230);
 	for (let s of selectedConstellation.stars) {
 		let p = projectPoint(s.pos, ax, ay, 300);
-		circle(p.x - 150, p.y - 150, 12 + random(-1, 1));
+		let drawX = p.x + offsetX;
+		let drawY = p.y + offsetY;
+		circle(drawX, drawY, 12 + random(-1, 1));
 	}
 
     // 線
     stroke(180, 200, 255, 100);
 	strokeWeight(2);
-	for (let a = 0; a < selectedConstellation.stars.length; a++) {
-	    for (let b = a + 1; b < selectedConstellation.stars.length; b++) {
-	        let pa = projectPoint(selectedConstellation.stars[a].pos, ax, ay, 300);
-	        let pb = projectPoint(selectedConstellation.stars[b].pos, ax, ay, 300);
-	        line(pa.x - 150, pa.y - 150, pb.x - 150, pb.y - 150);
-	    }
-	  }
+	for (let i = 0; i < selectedConstellation.stars.length; i++) {
+		for (let j = i + 1; j < selectedConstellation.stars.length; j++) {
+			let pa = projectPoint(selectedConstellation.stars[i].pos, ax, ay, 300);
+			let pb = projectPoint(selectedConstellation.stars[j].pos, ax, ay, 300);
+
+			let ax2 = pa.x + offsetX;
+			let ay2 = pa.y + offsetY;
+			let bx2 = pb.x + offsetX;
+			let by2 = pb.y + offsetY;
+
+			line(ax2, ay2, bx2, by2);
+		}
+	}
 	
 	  pop();
 
