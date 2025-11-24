@@ -87,7 +87,7 @@ function setup() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  positionButton();
+  positionButtons();
 }
 
 function draw() {
