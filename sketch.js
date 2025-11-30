@@ -1,5 +1,7 @@
 let state = "select";
 
+let cvs;
+
 let myFont;
 
 let addButton, okButton, backButton, galleryButton;
@@ -32,7 +34,7 @@ function preload() {
    setup
    ========================================================= */
 function setup() {
-  let cvs = createCanvas(windowWidth, windowHeight, WEBGL);
+  cvs = createCanvas(windowWidth, windowHeight, WEBGL);
 
   // ボタン
   cvs.elt.style.position = "absolute";
@@ -443,18 +445,20 @@ function mouseWheel(event) {
    ボタン配置
    ========================================================= */
 function positionButtons() {
-  okButton.position(
-    windowWidth / 2 - okButton.width / 2,
-    windowHeight - okButton.height - 20
-  );
+  if (!addButton || !okButton || !backButton || !galleryButton) return;
 
-  addButton.position(20, windowHeight - addButton.height - 20);
-  backButton.position(20, 20);
-  galleryButton.position(windowWidth - galleryButton.width - 40, 20);
+   okButton.position(
+      windowWidth / 2 - okButton.width / 2,
+      windowHeight - okButton.height - 20
+   );
+
+   addButton.position(20, windowHeight - addButton.height - 20);
+   backButton.position(20, 20);
+   galleryButton.position(windowWidth - galleryButton.width - 40, 20);
 }
 
 /* =========================================================
-   ギャラリー描画（scrollY衝突完全修正済版）
+   ギャラリー描画
    ========================================================= */
 function drawGallery2D(allConstellations) {
 
