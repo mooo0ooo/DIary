@@ -13,92 +13,111 @@ let touchMovedFlag = false;
 let bgStars = [];
 let bgStarCount = 300;
 
+// ---- gallery 用 ----
+let galleryStars = [];
+let scrollY = 0;
+let targetScrollY = 0;
+let outerPad = 20;
+let gutter = 12;
+let topOffset = 40;
+
+/* =========================================================
+   preload
+   ========================================================= */
 function preload() {
   myFont = loadFont("nicomoji-plus_v2-5.ttf");
 }
 
+/* =========================================================
+   setup
+   ========================================================= */
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
   textFont(myFont);
   textSize(16);
 
+  // ---- localStorage
   let saved = localStorage.getItem("myConstellations");
   if (saved) {
     try {
       allConstellations = JSON.parse(saved);
     } catch (e) {
-      console.warn("localStorage JSON parse error, resetting storage.", e);
+      console.warn("localStorage parse error. Reset.", e);
       allConstellations = [];
       localStorage.removeItem("myConstellations");
     }
   }
 
-  // ボタン作成
+  // ---- ボタン作成
   addButton = createButton("追加");
-  addButton.style('position','absolute'); addButton.style('z-index','10');
   okButton = createButton("OK");
-  okButton.style('position','absolute'); okButton.style('z-index','10');
   backButton = createButton("← 記録ページ");
-  backButton.style('position','absolute'); backButton.style('z-index','10'); backButton.hide();
   galleryButton = createButton("日記一覧");
-  galleryButton.style('position','absolute'); galleryButton.style('z-index','10');
 
-  styleButton(addButton); styleButton(okButton); styleButton(backButton); styleButton(galleryButton);
+  for (let b of [addButton, okButton, backButton, galleryButton]) {
+    b.style('position', 'absolute');
+    b.style('z-index', '10');
+    styleButton(b);
+  }
+  backButton.hide();
+
   computeBtnSize();
   positionButtons();
 
-  // ← 重要修正：追加ボタンは PAD を「開くだけ」にする（星生成はここでは行わない）
+  // ---- ボタンイベント
   addButton.touchStarted(() => {
-    state = "select";      // PAD 画面へ遷移
-    selectedLabel = null;  // 選択ラベルクリア
-    // もし PAD 初期化等が必要ならここで行う（addPAD を直接呼ばない）
-    // 例: initPAD(); があれば呼ぶ（ただし initPAD が星を生成しないことを確認）
+    state = "select";
+    selectedLabel = null;
   });
 
   okButton.touchStarted(() => {
     if (padValues.length > 0) {
       prepareVisual();
-      let now = new Date();
-      let y = now.getFullYear();
-      let m = String(now.getMonth() + 1).padStart(2, "0");
-      let d = String(now.getDate()).padStart(2, "0");
-      let hh = now.getHours();
-      let mm = String(now.getMinutes()).padStart(2, "0");
-      let weekdays = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-      let wd = weekdays[now.getDay()];
-      let timestamp = `${y}. ${m}. ${d} (${wd}) ${hh}:${mm}`;
 
-      let serialStars = points.map(s => {
-        return { pos: { x: s.pos.x, y: s.pos.y, z: s.pos.z }, emo: s.emo };
-      });
+      let now = new Date();
+      let timestamp = formatDate(now);
+
+      let serialStars = points.map(s => ({
+        pos: { x: s.pos.x, y: s.pos.y, z: s.pos.z },
+        emo: s.emo
+      }));
 
       let newConstellation = { stars: serialStars, created: timestamp };
-      allConstellations.push(newConstellation); // ← 星生成はここだけ
+      allConstellations.push(newConstellation);
       localStorage.setItem("myConstellations", JSON.stringify(allConstellations));
 
       state = "visual";
-      addButton.hide(); okButton.hide(); backButton.show();
+      addButton.hide();
+      okButton.hide();
+      backButton.show();
       visualStartTime = millis();
     }
   });
 
   backButton.touchStarted(() => {
     state = "select";
-    addButton.show(); okButton.show(); backButton.hide();
+    addButton.show();
+    okButton.show();
+    backButton.hide();
     selectedLabel = null;
   });
 
   galleryButton.touchStarted(() => {
     state = "gallery";
-    addButton.hide(); okButton.hide(); backButton.show();
-    galleryStars = []; // reset gallery background stars
+    addButton.hide();
+    okButton.hide();
+    backButton.show();
+    galleryStars = [];
   });
 
-  computeBtnSize();
+  addButton.mousePressed(() => addButton.touchStarted());
+  okButton.mousePressed(() => okButton.touchStarted());
+  backButton.mousePressed(() => backButton.touchStarted());
+  galleryButton.mousePressed(() => galleryButton.touchStarted());
 
-  // 背景の星
+  // ---- 背景の星
   for (let i = 0; i < bgStarCount; i++) {
-    bgStars.push( {
+    bgStars.push({
       x: random(-width * 2, width * 2),
       y: random(-height * 2, height * 2),
       z: random(-2000, 200),
@@ -107,11 +126,17 @@ function setup() {
   }
 }
 
+/* =========================================================
+   windowResized
+   ========================================================= */
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   positionButtons();
 }
 
+/* =========================================================
+   formatDate
+   ========================================================= */
 function formatDate(date) {
   const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
   let y = date.getFullYear();
@@ -120,21 +145,19 @@ function formatDate(date) {
   let day = days[date.getDay()];
   let hh = String(date.getHours()).padStart(2, "0");
   let mm = String(date.getMinutes()).padStart(2, "0");
-
   return `${y}. ${m}. ${d} (${day}) ${hh}:${mm}`;
 }
 
+/* =========================================================
+   draw
+   ========================================================= */
 function draw() {
   background(5,5,20);
 
-  // ----------------
-  // VISUAL MODE 
-  // ----------------
+  // visual
   if (state === "visual") {
-    // 背景のキラキラ星
     drawBackgroundStars();
 
-    // 3Dカメラ操作（更新は draw 内で）
     camRotX += rotVelX;
     camRotY += rotVelY;
     rotVelX *= 0.9;
@@ -144,13 +167,10 @@ function draw() {
     let camPos = computeCameraPosition();
     camera(camPos.x, camPos.y, camPos.z, camPanX, camPanY, 0, 0, 1, 0);
 
-    // 立方体+星などを描画する関数（既存）
     drawVisualMode();
 
-    // 2D描画用に変換リセットしてラベルを描画
     resetMatrix();
 
-    // 星の感情ラベル（左上） — 既存ロジックを維持
     if (selectedLabel) {
       noLights();
       textAlign(LEFT, TOP);
@@ -159,58 +179,58 @@ function draw() {
       text(selectedLabel, 20, 20);
     }
 
-    // 日付ラベルを画面下中央に表示（最後に保存された星座の created を出す）
     if (allConstellations.length > 0) {
       let lastCreated = allConstellations[allConstellations.length - 1].created || "";
       noLights();
       textAlign(CENTER, BOTTOM);
       textSize(16);
       fill(220);
-      // WEBGLモードでも resetMatrix() 後はキャンバス左上が (0,0) なので width/2 を使う
       text(lastCreated, width / 2, height - 40);
     }
 
     return;
   }
 
-  // ----------------
-  // SELECT MODE (PAD UI)
-  // ----------------
+  // select
   if (state === "select") {
-    camera(); // reset camera for 2D-like UI
+    camera();
     drawPADButtons();
     return;
   }
 
-  // ----------------
-  // GALLERY MODE (2D)
-  // ----------------
+  // gallery
   if (state === "gallery") {
     resetMatrix();
     drawBackgroundStars();
-    drawGallery2D(allConstellations);
+    drawGallery2D(allConstellations, galleryButton);
     return;
   }
 }
 
+/* =========================================================
+   背景の星
+   ========================================================= */
 function drawBackgroundStars() {
   push();
   noStroke();
 
   for (let s of bgStars) {
-    let tw = (sin((millis() + s.tw) * 0.002) + 1) * 0.5; 
+    let tw = (sin((millis() + s.tw) * 0.002) + 1) * 0.5;
     let brightness = lerp(100, 255, tw);
-    
+
     fill(brightness);
     push();
     translate(s.x, s.y, s.z);
-    sphere(1.5); 
+    sphere(1.5);
     pop();
   }
-  
+
   pop();
 }
 
+/* =========================================================
+   タッチ操作
+   ========================================================= */
 function touchStarted() {
   touchMovedFlag = false;
   touchStartTime = millis();
@@ -220,13 +240,19 @@ function touchStarted() {
     lastX = touchStartX;
     lastY = touchStartY;
   }
-
   return false;
 }
 
 function touchMoved() {
   touchMovedFlag = true;
 
+  // ---- gallery スワイプスクロール
+  if (state === "gallery") {
+    targetScrollY += movedY * 0.8;
+    return false;
+  }
+
+  // ---- visual カメラ操作
   if (touches && touches.length > 0 && state === "visual") {
     let mx = touches[0].x;
     let my = touches[0].y;
@@ -251,7 +277,7 @@ function touchMoved() {
     lastY = my;
   }
 
-  return false; 
+  return false;
 }
 
 function touchEnded() {
@@ -277,9 +303,13 @@ function touchEnded() {
   return false;
 }
 
+/* =========================================================
+   ギャラリー内のサムネイルタップ
+   ========================================================= */
 function handleTap(x, y) {
   if (x == null || y == null) return;
 
+  // ---- visual mode: 星ラベル選択
   if (state === "visual") {
     if (allConstellations.length === 0) return;
     let last = allConstellations[allConstellations.length - 1];
@@ -300,8 +330,8 @@ function handleTap(x, y) {
     return;
   }
 
+  // ---- select mode: PAD
   if (state === "select") {
-    // convert page coords -> padLayout coords (we used width/2, height/2 center)
     let mx = (x - width/2) / padLayout.scl;
     let my = (y - height/2) / padLayout.scl;
     let cx = padLayout.cx, cy = padLayout.cy;
@@ -339,15 +369,16 @@ function handleTap(x, y) {
     return;
   }
 
+  // ---- gallery: サムネイル選択
   if (state === "gallery") {
-    let yOff = topOffset + scrollY;
-    let maxThumb = 160;
+    let mx = x, my = y;
+
+    let maxThumb = min(180, width * 0.28);
     let colCount = floor((width - outerPad * 2) / (maxThumb + gutter));
-    colCount = constrain(colCount, 1, 5);
+    colCount = constrain(colCount, 1, 4);
     let thumbSize = floor((width - outerPad * 2 - gutter * (colCount - 1)) / colCount);
     thumbSize = constrain(thumbSize, 60, maxThumb);
 
-    let mx = x, my = y;
     let grouped = {};
     for (let i=0;i<12;i++) grouped[i] = [];
     for (let c of allConstellations) {
@@ -356,19 +387,24 @@ function handleTap(x, y) {
       grouped[int(m[2]) - 1].push(c);
     }
 
+    let yOff = topOffset + scrollY;
+
     for (let month = 0; month < 12; month++) {
       let list = grouped[month];
       if (list.length === 0) continue;
+
       yOff += 40;
       let index = 0;
       let rows = ceil(list.length / colCount);
+
       for (let cons of list) {
         let col = index % colCount;
         let row = floor(index / colCount);
         let x0 = outerPad + col * (thumbSize + gutter);
         let ty = yOff + row * (thumbSize + 35);
+
         if (mx > x0 && mx < x0 + thumbSize && my > ty && my < ty + thumbSize) {
-          selectedLabel = cons.created + " (selected)";
+          selectedLabel = cons.created + "";
           state = "visual";
           addButton.show(); okButton.show(); backButton.hide();
           return;
@@ -381,12 +417,12 @@ function handleTap(x, y) {
   }
 }
 
+/* =========================================================
+   mouseWheel
+   ========================================================= */
 function mouseWheel(event) {
   if (state === "gallery") {
     targetScrollY -= event.delta * 0.5;
-    let maxScroll = 0;
-    let minScroll = -3000;
-    targetScrollY = constrain(targetScrollY, minScroll, maxScroll);
     return false;
   }
   if (state === "visual") {
@@ -396,24 +432,178 @@ function mouseWheel(event) {
   return false;
 }
 
+/* =========================================================
+   ボタン配置
+   ========================================================= */
 function positionButtons() {
   okButton.position(
     windowWidth / 2 - okButton.width / 2,
     windowHeight - okButton.height - 20
   );
 
-  addButton.position(
-    20,
-    windowHeight - addButton.height - 20
-  );
-
-  backButton.position(
-    20,
-    20
-  );
-
-  galleryButton.position(
-    windowWidth - galleryButton.width - 40,
-    20
-  );
+  addButton.position(20, windowHeight - addButton.height - 20);
+  backButton.position(20, 20);
+  galleryButton.position(windowWidth - galleryButton.width - 40, 20);
 }
+
+/* =========================================================
+   ギャラリー描画（完全修正版）
+   ========================================================= */
+function drawGallery2D(allConstellations, galleryButton) {
+
+  // 背景星
+  if (galleryStars.length === 0) {
+    for (let i = 0; i < 400; i++) {
+      galleryStars.push({
+        x: random(-2000, 2000),
+        y: random(-2000, 2000),
+        z: random(-2000, 2000),
+        twinkle: random(1000),
+        baseSize: random(1, 4)
+      });
+    }
+  }
+
+  background(5,5,20);
+
+  // きらめき背景
+  for (let s of galleryStars) {
+    let tw = noise(s.twinkle + frameCount*0.01);
+    let size = s.baseSize * map(tw, 0, 1, 0.3, 1.2);
+    fill(255,200);
+    circle(s.x * 0.08 + width/2, s.y * 0.08 + height/2, size);
+  }
+
+  // スクロール
+  scrollY = lerp(scrollY, targetScrollY, 0.25);
+  let y = topOffset + scrollY;
+
+  // 動的カラム数
+  let maxThumb = min(180, width * 0.28);
+  let colCount = floor((width - outerPad * 2) / (maxThumb + gutter));
+  colCount = constrain(colCount, 1, 4);
+
+  let thumbSize = floor((width - outerPad * 2 - gutter * (colCount - 1)) / colCount);
+  thumbSize = constrain(thumbSize, 60, maxThumb);
+
+  // 月別分類
+  let grouped = {};
+  for (let i = 0; i < 12; i++) grouped[i] = [];
+  for (let c of allConstellations) {
+    let m = c.created.match(/(\d+)\D+(\d+)\D+(\d+)/);
+    if (!m) continue;
+    grouped[int(m[2]) - 1].push(c);
+  }
+
+  let monthNames = ["January","February","March","April","May","June",
+                    "July","August","September","October","November","December"];
+
+  let contentBottom = 0;
+
+  for (let month = 0; month < 12; month++) {
+    let list = grouped[month];
+    if (list.length === 0) continue;
+
+    fill(255);
+    textSize(26);
+    textAlign(LEFT, TOP);
+    text(monthNames[month], outerPad, y);
+    y += 40;
+
+    let index = 0;
+    let rows = ceil(list.length / colCount);
+
+    for (let cons of list) {
+      let col = index % colCount;
+      let row = floor(index / colCount);
+      let x = outerPad + col * (thumbSize + gutter);
+      let ty = y + row * (thumbSize + 35);
+
+      // サムネイル生成
+      if (!cons.thumbnail) cons.thumbnail = generateThumbnail(cons, thumbSize);
+
+      push();
+      translate(x, ty);
+      stroke(150,80); noFill();
+      rect(0,0,thumbSize,thumbSize,12);
+      image(cons.thumbnail, 0, 0, thumbSize, thumbSize);
+      fill(240); textSize(10); textAlign(LEFT, TOP);
+      text(cons.created, 0, thumbSize + 6);
+      pop();
+
+      index++;
+    }
+
+    y += rows * (thumbSize + 35) + 40;
+    contentBottom = y;
+  }
+
+  // ---- スクロール範囲
+  let minScroll = height - (contentBottom + 60);
+  targetScrollY = constrain(targetScrollY, minScroll, 0);
+  scrollY     = constrain(scrollY,     minScroll, 0);
+}
+
+/* =========================================================
+   サムネイル生成
+   ========================================================= */
+function generateThumbnail(cons, size) {
+  let pg = createGraphics(size, size);
+  pg.pixelDensity(1);
+  pg.background(5,5,20);
+
+  let ax = radians(-30), ay = radians(30);
+  let projected = [];
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+
+  for (let s of cons.stars) {
+    let p = projectPoint(s.pos, ax, ay);
+    projected.push(p);
+    minX = min(minX, p.x);
+    maxX = max(maxX, p.x);
+    minY = min(minY, p.y);
+    maxY = max(maxY, p.y);
+  }
+
+  if (projected.length === 0) {
+    pg.noStroke(); pg.fill(255,20); pg.rect(0,0,size,size);
+    return pg;
+  }
+
+  let w = max(1e-6, maxX - minX);
+  let h = max(1e-6, maxY - minY);
+  let margin = size * 0.12;
+  let scaleFactor = (size - margin*2) / max(w,h);
+
+  pg.push();
+  pg.translate(size/2, size/2);
+  pg.scale(scaleFactor);
+  pg.translate(-(minX+maxX)/2, -(minY+maxY)/2);
+
+  pg.stroke(180,200,255,90);
+  pg.strokeWeight(1/scaleFactor);
+  pg.noFill();
+
+  for (let i = 0; i < projected.length; i++) {
+    let dists = [];
+    for (let j = 0; j < projected.length; j++) {
+      if (i === j) continue;
+      let dx = projected[i].x - projected[j].x;
+      let dy = projected[i].y - projected[j].y;
+      dists.push({idx:j, d:dx*dx+dy*dy});
+    }
+    dists.sort((a,b)=>a.d-b.d);
+    for (let n=0;n<min(2,dists.length);n++) {
+      let a = projected[i], b = projected[dists[n].idx];
+      pg.line(a.x, a.y, b.x, b.y);
+    }
+  }
+
+  pg.noStroke();
+  pg.fill(255,240,200,230);
+  for (let p of projected) pg.circle(p.x, p.y, 5/scaleFactor);
+
+  pg.pop();
+  return pg;
+}
+
