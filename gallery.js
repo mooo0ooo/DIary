@@ -1,4 +1,3 @@
-let scrollY = 0, targetScrollY = 0;
 let outerPad = 20, gutter = 12, topOffset = 40;
 
 function generateThumbnail(cons, size) {
