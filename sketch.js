@@ -64,7 +64,6 @@ function setup() {
   backButton = createButton("← 記録ページ");
   galleryButton = createButton("日記一覧");
 
-  // ★★★ 修正２：pointer-events:auto を強制付与 + z-index↑ ★★★
   for (let b of [addButton, okButton, backButton, galleryButton]) {
     b.style("position", "absolute");
     b.style("z-index", "200");       
@@ -90,10 +89,10 @@ function setup() {
       let timestamp = formatDate(now);
 
       let serialStars = points.map(s => ({
-         pos: { x: s.pos.x, y: s.pos.y, z: s.pos.z },
-         emo: s.emo
-      });
-      return false;
+        pos: { x: s.pos.x, y: s.pos.y, z: s.pos.z },
+        emo: s.emo
+      }));
+       return false;
    });
 
       let newConstellation = { stars: serialStars, created: timestamp };
