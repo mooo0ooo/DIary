@@ -15,8 +15,6 @@ let bgStarCount = 300;
 
 // ---- gallery 用 ----
 let galleryStars = [];
-let scrollY = 0;
-let targetScrollY = 0;
 let outerPad = 20;
 let gutter = 12;
 let topOffset = 40;
