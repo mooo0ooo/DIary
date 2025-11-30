@@ -71,63 +71,64 @@ function setup() {
   }
   backButton.hide();
 
-  computeBtnSize();
   positionButtons();
 
   /* -------------------- 追加ボタン -------------------- */
-  addButton.touchStarted(() => {
+  addButton.elt.addEventListener("touchstart", (e) => {
+    e.preventDefault(); 
     state = "select";
     selectedLabel = null;
-    return false;
-  });
+    addButton.show();
+    okButton.show();
+    backButton.hide();
+  }, { passive: false });
 
   /* -------------------- OK ボタン -------------------- */
-  okButton.touchStarted(() => {
-     if (!padValues || padValues.length <= 0) return false;
-     if (!points || points.length <= 0) return false;
-   
-     prepareVisual();
-   
-     let now = new Date();
-     let timestamp = formatDate(now);
+  okButton.elt.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    if (!padValues || padValues.length <= 0) return false;
+    if (!points || points.length <= 0) return false;
 
-     let serialStars = points.map(s => ({
-       pos: { x: s.pos?.x ?? 0, y: s.pos?.y ?? 0, z: s.pos?.z ?? 0 },
-       emo: s.emo ?? { en: "", ja: "" }
-     }));
-   
-     let newConstellation = { stars: serialStars, created: timestamp };
-     allConstellations.push(newConstellation);
-     localStorage.setItem("myConstellations", JSON.stringify(allConstellations));
-   
-     state = "visual";
-     addButton.hide();
-     okButton.hide();
-     backButton.show();
-     visualStartTime = millis();
-   
-     return false;
-  });
+    prepareVisual();
+
+    let now = new Date();
+    let timestamp = formatDate(now);
+
+    let serialStars = points.map(s => ({
+      pos: { x: s.pos?.x ?? 0, y: s.pos?.y ?? 0, z: s.pos?.z ?? 0 },
+      emo: s.emo ?? { en: "", ja: "" }
+    }));
+
+    let newConstellation = { stars: serialStars, created: timestamp };
+    allConstellations.push(newConstellation);
+    localStorage.setItem("myConstellations", JSON.stringify(allConstellations));
+
+    state = "visual";
+    addButton.hide();
+    okButton.hide();
+    backButton.show();
+    visualStartTime = millis();
+  }, { passive: false });
 
   /* -------------------- 戻るボタン -------------------- */
-  backButton.touchStarted(() => {
+  backButton.elt.addEventListener("touchstart", (e) => {
+    e.preventDefault();
     state = "select";
     addButton.show();
     okButton.show();
     backButton.hide();
     selectedLabel = null;
-    return false;
-  });
+  }, { passive: false });
 
   /* -------------------- ギャラリーボタン -------------------- */
-  galleryButton.touchStarted(() => {
+  galleryButton.elt.addEventListener("touchstart", (e) => {
+    e.preventDefault();
     state = "gallery";
     addButton.hide();
     okButton.hide();
     backButton.show();
     galleryStars = [];
-    return false;
-  });
+  }, { passive: false });
 
   /* -------------------- 背景の星 -------------------- */
   for (let i = 0; i < bgStarCount; i++) {
