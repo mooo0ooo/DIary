@@ -58,10 +58,10 @@ function setup() {
   }
 
   // ---- ボタン作成
-  addButton = createButton("追加");
-  okButton = createButton("OK");
-  backButton = createButton("← 記録ページ");
-  galleryButton = createButton("日記一覧");
+   addButton = createButton("追加");
+   okButton = createButton("OK");
+   backButton = createButton("← 記録ページ");
+   galleryButton = createButton("日記一覧");
 
   for (let b of [addButton, okButton, backButton, galleryButton]) {
     b.style("position", "absolute");
@@ -71,44 +71,54 @@ function setup() {
   }
   backButton.hide();
 
-  positionButtons();
+   function positionButtons() {
+     okButton.position(
+       windowWidth / 2 - okButton.width / 2,
+       windowHeight - okButton.height - 20
+     );
+     addButton.position(20, windowHeight - addButton.height - 20);
+     backButton.position(20, 20);
+     galleryButton.position(windowWidth - galleryButton.width - 40, 20);
+   }
 
+   // ---- タッチイベント
   /* -------------------- 追加ボタン -------------------- */
   addButton.elt.addEventListener("touchstart", (e) => {
-    e.preventDefault(); 
-    state = "select";
-    selectedLabel = null;
-    addButton.show();
-    okButton.show();
-    backButton.hide();
-  }, { passive: false });
+     e.preventDefault();
+     state = "select";
+     selectedLabel = null;
+     addButton.show();
+     okButton.show();
+     backButton.hide();
+   }, { passive: false });
 
   /* -------------------- OK ボタン -------------------- */
   okButton.elt.addEventListener("touchstart", (e) => {
     e.preventDefault();
-    if (!padValues || padValues.length <= 0) return false;
-    if (!points || points.length <= 0) return false;
+    
+    if (!padValues || padValues.length <= 0) return;
+    if (!points || points.length <= 0) return;
 
     prepareVisual();
 
     let now = new Date();
-    let timestamp = formatDate(now);
-
-    let serialStars = points.map(s => ({
-      pos: { x: s.pos?.x ?? 0, y: s.pos?.y ?? 0, z: s.pos?.z ?? 0 },
-      emo: s.emo ?? { en: "", ja: "" }
-    }));
-
-    let newConstellation = { stars: serialStars, created: timestamp };
-    allConstellations.push(newConstellation);
-    localStorage.setItem("myConstellations", JSON.stringify(allConstellations));
-
-    state = "visual";
-    addButton.hide();
-    okButton.hide();
-    backButton.show();
-    visualStartTime = millis();
-  }, { passive: false });
+     let timestamp = formatDate(now);
+   
+     let serialStars = points.map(s => ({
+       pos: { x: s.pos?.x ?? 0, y: s.pos?.y ?? 0, z: s.pos?.z ?? 0 },
+       emo: s.emo ?? { en: "", ja: "" }
+     }));
+   
+     let newConstellation = { stars: serialStars, created: timestamp };
+     allConstellations.push(newConstellation);
+     localStorage.setItem("myConstellations", JSON.stringify(allConstellations));
+   
+     state = "visual";
+     addButton.hide();
+     okButton.hide();
+     backButton.show();
+     visualStartTime = millis();
+   }, { passive: false });
 
   /* -------------------- 戻るボタン -------------------- */
   backButton.elt.addEventListener("touchstart", (e) => {
