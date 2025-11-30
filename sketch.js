@@ -211,7 +211,7 @@ function draw() {
   if (state === "gallery") {
     resetMatrix();
     drawBackgroundStars();
-    drawGallery2D(allConstellations, galleryButton);
+    drawGallery2D(allConstellations);
     return;
   }
 }
