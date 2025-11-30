@@ -332,105 +332,110 @@ function touchEnded() {
    ギャラリー内タップ
    ========================================================= */
    function handleTap(x, y) {
-      if (x == null || y == null) return;
+  if (x == null || y == null) return;
 
-      // ---- visual mode: 星ラベル選択
-      if (state === "visual") { 
-         if (allConstellations.length === 0) return; 
-         let last = allConstellations[allConstellations.length - 1]; 
-         let minDist = 50; 
-         let nearest = null;
-         for (let p of last.stars) { 
-            let px = p.pos?.x ?? 0; let py = p.pos?.y ?? 0; 
-            let pz = p.pos?.z ?? 0; let sp = screenPos(px, py, pz); 
-            let d = dist(x, y, sp.x, sp.y); 
-            if (d < minDist) { minDist = d; nearest = p; } 
-         } if (nearest) { 
-            let emo = nearest.emo || {en:"", ja:""}; 
-            selectedLabel = emo.en + "(" + (emo.ja || "") + ")"; 
-         } 
-         return; 
+  // ---- visual mode: 星ラベル選択
+  if (state === "visual") {
+    if (allConstellations.length === 0) return;
+    let last = allConstellations[allConstellations.length - 1];
+    let minDist = 50;
+    let nearest = null;
+    for (let p of last.stars) {
+      let px = p.pos?.x ?? 0;
+      let py = p.pos?.y ?? 0;
+      let pz = p.pos?.z ?? 0;
+      let sp = screenPos(px, py, pz);
+      let d = dist(x, y, sp.x, sp.y);
+      if (d < minDist) { minDist = d; nearest = p; }
+    }
+    if (nearest) {
+      let emo = nearest.emo || { en: "", ja: "" };
+      selectedLabel = emo.en + "(" + (emo.ja || "") + ")";
+    }
+    return;
+  }
+
+  // ---- select mode: PAD
+  if (state === "select") {
+    let mx = (x - width / 2) / padLayout.scl;
+    let my = (y - height / 2) / padLayout.scl;
+    let cx = padLayout.cx, cy = padLayout.cy;
+
+    // P
+    for (let i = 0; i < 7; i++) {
+      let bx = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
+      let by = cy - 120;
+      if (mx > bx - padLayout.btnSize / 2 && mx < bx + padLayout.btnSize / 2 &&
+        my > by - padLayout.btnSize / 2 && my < by + padLayout.btnSize / 2) {
+        selectedP = i;
+        return;
       }
+    }
 
-   // ---- select mode: PAD 
-   if (state === "select") { 
-      let mx = (x - width/2) / padLayout.scl; 
-      let my = (y - height/2) / padLayout.scl; 
-      let cx = padLayout.cx, cy = padLayout.cy; 
-      
-      // P 
-      for (let i = 0; i < 7; i++) { 
-         let bx = cx + (i-3)*(padLayout.btnSize+padLayout.spacing); 
-         let by = cy - 120; 
-         if (mx > bx - padLayout.btnSize/2 && mx < bx + padLayout.btnSize/2 && my > by - padLayout.btnSize/2 && my < by + padLayout.btnSize/2) { 
-            selectedP = i; 
-            return; 
-         } 
+    // A
+    for (let i = 0; i < 7; i++) {
+      let bx = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
+      let by = cy;
+      if (dist(mx, my, bx, by) < padLayout.btnSize / 2) {
+        selectedA = i;
+        return;
       }
+    }
 
-      // A 
-      for (let i = 0; i < 7; i++) { 
-         let bx = cx + (i-3)*(padLayout.btnSize+padLayout.spacing); 
-         let by = cy; 
-         if (dist(mx, my, bx, by) < padLayout.btnSize/2) { 
-            selectedA = i; 
-            return; 
-         } 
+    // D
+    for (let i = 0; i < 7; i++) {
+      let bx = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
+      let by = cy + 120;
+      if (dist(mx, my, bx, by) < padLayout.btnSize / 2) {
+        selectedD = i;
+        return;
       }
+    }
+    return;
+  }
 
-      // D 
-      for (let i = 0; i < 7; i++) { 
-         let bx = cx + (i-3)*(padLayout.btnSize+padLayout.spacing); 
-         let by = cy + 120; 
-         if (dist(mx, my, bx, by) < padLayout.btnSize/2) { 
-            selectedD = i; 
-            return; 
-         } 
-      } 
-      return; 
-     }
-      // ---- gallery: サムネイル選択 
-      if (state === "gallery") {
-         let mx = x, my = y; 
-         let maxThumb = min(180, width * 0.28); 
-         let colCount = floor((width - galleryOuterPad * 2) / (maxThumb + galleryGutter)); 
-         colCount = constrain(colCount, 1, 4); 
-         let thumbSize = floor((width - galleryOuterPad * 2 - galleryGutter * (colCount - 1)) / colCount); 
-         thumbSize = constrain(thumbSize, 60, maxThumb); 
-         let grouped = {}; 
-         for (let i=0;i<12;i++) grouped[i] = []; 
-         for (let c of allConstellations) { 
-            let m = c.created.match(/(\d+)\D+(\d+)\D+(\d+)/); 
-            if (!m) continue; 
-            grouped[int(m[2]) - 1].push(c); 
-         } 
-         let yOff = galleryTopOffset + galleryScrollY; 
-         for (let month = 0; month < 12; month++) { 
-            let list = grouped[month]; 
-            if (list.length === 0) continue; 
-            yOff += 40; 
-            let index = 0; 
-            let rows = ceil(list.length / colCount); 
-            for (let cons of list) { 
-               let col = index % colCount; 
-               let row = floor(index / colCount); 
-               let x0 = galleryOuterPad + col * (thumbSize + galleryGutter); 
-               let ty = yOff + row * (thumbSize + 35); 
-               if (mx > x0 && mx < x0 + thumbSize && my > ty && my < ty + thumbSize) { 
-                  selectedLabel = cons.created + ""; 
-                  state = "visual"; 
-                  addButton.show(); 
-                  okButton.show(); 
-                  backButton.hide(); 
-                  return; 
-               } 
-               index++; 
-            }
-            yOff += rows * (thumbSize + 35) + 40; 
-         } 
-         return; 
-      } 
-   }
+  // ---- gallery: サムネイル選択
+  if (state === "gallery") {
+    let mx = x, my = y;
+    let maxThumb = min(180, width * 0.28);
+    let colCount = floor((width - galleryOuterPad * 2) / (maxThumb + galleryGutter));
+    colCount = constrain(colCount, 1, 4);
+    let thumbSize = floor((width - galleryOuterPad * 2 - galleryGutter * (colCount - 1)) / colCount);
+    thumbSize = constrain(thumbSize, 60, maxThumb);
+    let grouped = {};
+    for (let i = 0; i < 12; i++) grouped[i] = [];
+    for (let c of allConstellations) {
+      let m = c.created.match(/(\d+)\D+(\d+)\D+(\d+)/);
+      if (!m) continue;
+      grouped[int(m[2]) - 1].push(c);
+    }
+    let yOff = galleryTopOffset + galleryScrollY;
+    for (let month = 0; month < 12; month++) {
+      let list = grouped[month];
+      if (list.length === 0) continue;
+      yOff += 40;
+      let index = 0;
+      let rows = ceil(list.length / colCount);
+      for (let cons of list) {
+        let col = index % colCount;
+        let row = floor(index / colCount);
+        let x0 = galleryOuterPad + col * (thumbSize + galleryGutter);
+        let ty = yOff + row * (thumbSize + 35);
+        if (mx > x0 && mx < x0 + thumbSize && my > ty && my < ty + thumbSize) {
+          selectedLabel = cons.created + "";
+          state = "visual";
+          addButton.show();
+          okButton.show();
+          backButton.hide();
+          return;
+        }
+        index++;
+      }
+      yOff += rows * (thumbSize + 35) + 40;
+    }
+    return;
+  }
+}
 
 /* =========================================================
    mouseWheel
