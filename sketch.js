@@ -33,7 +33,13 @@ function preload() {
    ========================================================= */
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
-  cvs.elt.style.pointerEvents = "none";
+
+  // ボタン
+  cvs.elt.style.position = "absolute";
+  cvs.elt.style.left = "0px";
+  cvs.elt.style.top = "0px";
+  cvs.elt.style.zIndex = "-1";
+   
   textFont(myFont);
   textSize(16);
 
