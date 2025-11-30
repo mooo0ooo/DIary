@@ -31,7 +31,6 @@ function preload() {
   myFont = loadFont("nicomoji-plus_v2-5.ttf");
 }
 
-
 /* =========================================================
    setup
    ========================================================= */
@@ -66,8 +65,8 @@ function setup() {
 
   for (let b of [addButton, okButton, backButton, galleryButton]) {
     b.style("position", "absolute");
-    b.style("z-index", "200");       
-    b.style("pointer-events", "auto");    // ← これでタッチが確実に届く
+    b.style("z-index", "200");
+    b.style("pointer-events", "auto");
     styleButton(b);
   }
   backButton.hide();
@@ -75,64 +74,71 @@ function setup() {
   computeBtnSize();
   positionButtons();
 
+  /* -------------------- 追加ボタン -------------------- */
   addButton.touchStarted(() => {
-     state = "select";
-     selectedLabel = null;
-     return false;
+    state = "select";
+    selectedLabel = null;
+    return false;
   });
 
+  /* -------------------- OK ボタン -------------------- */
   okButton.touchStarted(() => {
-    if (padValues.length > 0) {
-      prepareVisual();
+    if (padValues.length <= 0) return false;
 
-      let now = new Date();
-      let timestamp = formatDate(now);
+    prepareVisual();
 
-      let serialStars = points.map(s => ({
-        pos: { x: s.pos.x, y: s.pos.y, z: s.pos.z },
-        emo: s.emo
-      }));
-       return false;
-   });
+    let now = new Date();
+    let timestamp = formatDate(now);
 
-      let newConstellation = { stars: serialStars, created: timestamp };
-      allConstellations.push(newConstellation);
-      localStorage.setItem("myConstellations", JSON.stringify(allConstellations));
+    let serialStars = points.map(s => ({
+      pos: { x: s.pos.x, y: s.pos.y, z: s.pos.z },
+      emo: s.emo
+    }));
 
-      state = "visual";
-      addButton.hide();
-      okButton.hide();
-      backButton.show();
-      visualStartTime = millis();
+    let newConstellation = { stars: serialStars, created: timestamp };
+    allConstellations.push(newConstellation);
+    localStorage.setItem("myConstellations", JSON.stringify(allConstellations));
 
-     backButton.touchStarted(() => {
-        state = "select";
-        addButton.show();
-        okButton.show();
-        backButton.hide();
-        selectedLabel = null;
-        return false;
-     });
-   
-     galleryButton.touchStarted(() => {
-        state = "gallery";
-        addButton.hide();
-        okButton.hide();
-        backButton.show();
-        galleryStars = [];
-        return false;
-     });
-   
-     // ---- 背景の星
-     for (let i = 0; i < bgStarCount; i++) {
-       bgStars.push({
-         x: random(-width * 2, width * 2),
-         y: random(-height * 2, height * 2),
-         z: random(-2000, 200),
-         tw: random(1000)
-       });
-     }
-   }
+    state = "visual";
+    addButton.hide();
+    okButton.hide();
+    backButton.show();
+    visualStartTime = millis();
+
+    return false;
+  });
+
+  /* -------------------- 戻るボタン -------------------- */
+  backButton.touchStarted(() => {
+    state = "select";
+    addButton.show();
+    okButton.show();
+    backButton.hide();
+    selectedLabel = null;
+    return false;
+  });
+
+  /* -------------------- ギャラリーボタン -------------------- */
+  galleryButton.touchStarted(() => {
+    state = "gallery";
+    addButton.hide();
+    okButton.hide();
+    backButton.show();
+    galleryStars = [];
+    return false;
+  });
+
+  /* -------------------- 背景の星 -------------------- */
+  for (let i = 0; i < bgStarCount; i++) {
+    bgStars.push({
+      x: random(-width * 2, width * 2),
+      y: random(-height * 2, height * 2),
+      z: random(-2000, 200),
+      tw: random(1000)
+    });
+  }
+}
+
 
 /* =========================================================
    windowResized
