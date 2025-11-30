@@ -13,7 +13,7 @@ let touchMovedFlag = false;
 let bgStars = [];
 let bgStarCount = 300;
 
-// ---- gallery 用（衝突防止リネーム）----
+// ---- gallery 用
 let galleryStars = [];
 let galleryScrollY = 0;
 let galleryTargetScrollY = 0;
@@ -33,6 +33,7 @@ function preload() {
    ========================================================= */
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
+  cvs.elt.style.pointerEvents = "none";
   textFont(myFont);
   textSize(16);
 
