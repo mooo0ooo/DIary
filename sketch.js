@@ -23,6 +23,9 @@ let galleryOuterPad = 20;
 let galleryGutter = 12;
 let galleryTopOffset = 40;
 
+let scrollY = 0;
+let targetScrollY = 0;
+
 
 /* =========================================================
    preload
@@ -139,7 +142,6 @@ function setup() {
     });
   }
 }
-
 
 /* =========================================================
    windowResized
