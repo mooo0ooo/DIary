@@ -74,7 +74,6 @@ function setup() {
   computeBtnSize();
   positionButtons();
 
-  // ---- ボタンイベント
   addButton.touchStarted(() => {
     state = "select";
     selectedLabel = null;
