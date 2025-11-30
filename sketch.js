@@ -13,11 +13,13 @@ let touchMovedFlag = false;
 let bgStars = [];
 let bgStarCount = 300;
 
-// ---- gallery 用 ----
+// ---- gallery 用（衝突防止リネーム）----
 let galleryStars = [];
-let outerPad = 20;
-let gutter = 12;
-let topOffset = 40;
+let galleryScrollY = 0;
+let galleryTargetScrollY = 0;
+let galleryOuterPad = 20;
+let galleryGutter = 12;
+let galleryTopOffset = 40;
 
 /* =========================================================
    preload
@@ -246,7 +248,7 @@ function touchMoved() {
 
   // ---- gallery スワイプスクロール
   if (state === "gallery") {
-    targetScrollY += movedY * 0.8;
+    galleryTargetScrollY += movedY * 0.8;
     return false;
   }
 
@@ -372,9 +374,9 @@ function handleTap(x, y) {
     let mx = x, my = y;
 
     let maxThumb = min(180, width * 0.28);
-    let colCount = floor((width - outerPad * 2) / (maxThumb + gutter));
+    let colCount = floor((width - galleryOuterPad * 2) / (maxThumb + galleryGutter));
     colCount = constrain(colCount, 1, 4);
-    let thumbSize = floor((width - outerPad * 2 - gutter * (colCount - 1)) / colCount);
+    let thumbSize = floor((width - galleryOuterPad * 2 - galleryGutter * (colCount - 1)) / colCount);
     thumbSize = constrain(thumbSize, 60, maxThumb);
 
     let grouped = {};
@@ -385,7 +387,7 @@ function handleTap(x, y) {
       grouped[int(m[2]) - 1].push(c);
     }
 
-    let yOff = topOffset + scrollY;
+    let yOff = galleryTopOffset + galleryScrollY;
 
     for (let month = 0; month < 12; month++) {
       let list = grouped[month];
@@ -398,7 +400,7 @@ function handleTap(x, y) {
       for (let cons of list) {
         let col = index % colCount;
         let row = floor(index / colCount);
-        let x0 = outerPad + col * (thumbSize + gutter);
+        let x0 = galleryOuterPad + col * (thumbSize + galleryGutter);
         let ty = yOff + row * (thumbSize + 35);
 
         if (mx > x0 && mx < x0 + thumbSize && my > ty && my < ty + thumbSize) {
@@ -420,7 +422,7 @@ function handleTap(x, y) {
    ========================================================= */
 function mouseWheel(event) {
   if (state === "gallery") {
-    targetScrollY -= event.delta * 0.5;
+    galleryTargetScrollY -= event.delta * 0.5;
     return false;
   }
   if (state === "visual") {
@@ -445,11 +447,11 @@ function positionButtons() {
 }
 
 /* =========================================================
-   ギャラリー描画（完全修正版）
+   ギャラリー描画（scrollY衝突完全修正済版）
    ========================================================= */
-function drawGallery2D(allConstellations, galleryButton) {
+function drawGallery2D(allConstellations) {
 
-  // 背景星
+  // ---- 背景星
   if (galleryStars.length === 0) {
     for (let i = 0; i < 400; i++) {
       galleryStars.push({
@@ -472,19 +474,19 @@ function drawGallery2D(allConstellations, galleryButton) {
     circle(s.x * 0.08 + width/2, s.y * 0.08 + height/2, size);
   }
 
-  // スクロール
-  scrollY = lerp(scrollY, targetScrollY, 0.25);
-  let y = topOffset + scrollY;
+  // ---- スクロール反映
+  galleryScrollY = lerp(galleryScrollY, galleryTargetScrollY, 0.25);
+  let y = galleryTopOffset + galleryScrollY;
 
-  // 動的カラム数
+  // ---- カラム計算
   let maxThumb = min(180, width * 0.28);
-  let colCount = floor((width - outerPad * 2) / (maxThumb + gutter));
+  let colCount = floor((width - galleryOuterPad * 2) / (maxThumb + galleryGutter));
   colCount = constrain(colCount, 1, 4);
 
-  let thumbSize = floor((width - outerPad * 2 - gutter * (colCount - 1)) / colCount);
+  let thumbSize = floor((width - galleryOuterPad * 2 - galleryGutter * (colCount - 1)) / colCount);
   thumbSize = constrain(thumbSize, 60, maxThumb);
 
-  // 月別分類
+  // ---- 月別分類
   let grouped = {};
   for (let i = 0; i < 12; i++) grouped[i] = [];
   for (let c of allConstellations) {
@@ -505,7 +507,7 @@ function drawGallery2D(allConstellations, galleryButton) {
     fill(255);
     textSize(26);
     textAlign(LEFT, TOP);
-    text(monthNames[month], outerPad, y);
+    text(monthNames[month], galleryOuterPad, y);
     y += 40;
 
     let index = 0;
@@ -514,10 +516,9 @@ function drawGallery2D(allConstellations, galleryButton) {
     for (let cons of list) {
       let col = index % colCount;
       let row = floor(index / colCount);
-      let x = outerPad + col * (thumbSize + gutter);
+      let x = galleryOuterPad + col * (thumbSize + galleryGutter);
       let ty = y + row * (thumbSize + 35);
 
-      // サムネイル生成
       if (!cons.thumbnail) cons.thumbnail = generateThumbnail(cons, thumbSize);
 
       push();
@@ -538,8 +539,8 @@ function drawGallery2D(allConstellations, galleryButton) {
 
   // ---- スクロール範囲
   let minScroll = height - (contentBottom + 60);
-  targetScrollY = constrain(targetScrollY, minScroll, 0);
-  scrollY     = constrain(scrollY,     minScroll, 0);
+  galleryTargetScrollY = constrain(galleryTargetScrollY, minScroll, 0);
+  galleryScrollY       = constrain(galleryScrollY,       minScroll, 0);
 }
 
 /* =========================================================
@@ -604,4 +605,3 @@ function generateThumbnail(cons, size) {
   pg.pop();
   return pg;
 }
-
