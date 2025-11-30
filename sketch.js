@@ -37,6 +37,7 @@ function setup() {
   cvs = createCanvas(windowWidth, windowHeight, WEBGL);
 
   // ボタン
+  cvs.elt.style.pointerEvents = "none";
   cvs.elt.style.position = "absolute";
   cvs.elt.style.left = "0px";
   cvs.elt.style.top = "0px";
