@@ -105,36 +105,35 @@ function setup() {
       okButton.hide();
       backButton.show();
       visualStartTime = millis();
-  }
 
-
-  backButton.touchStarted(() => {
-     state = "select";
-     addButton.show();
-     okButton.show();
-     backButton.hide();
-     selectedLabel = null;
-     return false;
-  });
-
-  galleryButton.touchStarted(() => {
-     state = "gallery";
-     addButton.hide();
-     okButton.hide();
-     backButton.show();
-     galleryStars = [];
-     return false;
-  });
-
-  // ---- 背景の星
-  for (let i = 0; i < bgStarCount; i++) {
-    bgStars.push({
-      x: random(-width * 2, width * 2),
-      y: random(-height * 2, height * 2),
-      z: random(-2000, 200),
-      tw: random(1000)
-    });
-  }
+     backButton.touchStarted(() => {
+        state = "select";
+        addButton.show();
+        okButton.show();
+        backButton.hide();
+        selectedLabel = null;
+        return false;
+     });
+   
+     galleryButton.touchStarted(() => {
+        state = "gallery";
+        addButton.hide();
+        okButton.hide();
+        backButton.show();
+        galleryStars = [];
+        return false;
+     });
+   
+     // ---- 背景の星
+     for (let i = 0; i < bgStarCount; i++) {
+       bgStars.push({
+         x: random(-width * 2, width * 2),
+         y: random(-height * 2, height * 2),
+         z: random(-2000, 200),
+         tw: random(1000)
+       });
+     }
+   }
 
 /* =========================================================
    windowResized
@@ -446,7 +445,6 @@ function mouseWheel(event) {
   }
   return false;
 }
-
 
 /* =========================================================
    ボタン配置
