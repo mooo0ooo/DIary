@@ -38,12 +38,10 @@ function preload() {
 function setup() {
   cvs = createCanvas(windowWidth, windowHeight, WEBGL);
 
-  // ★★★ 修正１：pointer-events:none を削除 ★★★
-  // cvs.elt.style.pointerEvents = "none"; ← 削除
   cvs.elt.style.position = "absolute";
   cvs.elt.style.left = "0px";
   cvs.elt.style.top = "0px";
-  cvs.elt.style.zIndex = "-1";
+  cvs.elt.style.zIndex = "0";
 
   textFont(myFont);
   textSize(16);
@@ -79,8 +77,9 @@ function setup() {
   positionButtons();
 
   addButton.touchStarted(() => {
-    state = "select";
-    selectedLabel = null;
+     state = "select";
+     selectedLabel = null;
+     return false;
   });
 
   okButton.touchStarted(() => {
@@ -91,9 +90,11 @@ function setup() {
       let timestamp = formatDate(now);
 
       let serialStars = points.map(s => ({
-        pos: { x: s.pos.x, y: s.pos.y, z: s.pos.z },
-        emo: s.emo
-      }));
+         pos: { x: s.pos.x, y: s.pos.y, z: s.pos.z },
+         emo: s.emo
+      });
+      return false;
+   });
 
       let newConstellation = { stars: serialStars, created: timestamp };
       allConstellations.push(newConstellation);
@@ -104,30 +105,26 @@ function setup() {
       okButton.hide();
       backButton.show();
       visualStartTime = millis();
-    }
-  });
+  }
+
 
   backButton.touchStarted(() => {
-    state = "select";
-    addButton.show();
-    okButton.show();
-    backButton.hide();
-    selectedLabel = null;
+     state = "select";
+     addButton.show();
+     okButton.show();
+     backButton.hide();
+     selectedLabel = null;
+     return false;
   });
 
   galleryButton.touchStarted(() => {
-    state = "gallery";
-    addButton.hide();
-    okButton.hide();
-    backButton.show();
-    galleryStars = [];
+     state = "gallery";
+     addButton.hide();
+     okButton.hide();
+     backButton.show();
+     galleryStars = [];
+     return false;
   });
-
-  // デスクトップ用
-  addButton.mousePressed(() => addButton.touchStarted());
-  okButton.mousePressed(() => okButton.touchStarted());
-  backButton.mousePressed(() => backButton.touchStarted());
-  galleryButton.mousePressed(() => galleryButton.touchStarted());
 
   // ---- 背景の星
   for (let i = 0; i < bgStarCount; i++) {
