@@ -83,29 +83,30 @@ function setup() {
 
   /* -------------------- OK ボタン -------------------- */
   okButton.touchStarted(() => {
-    if (padValues.length <= 0) return false;
+     if (!padValues || padValues.length <= 0) return false;
+     if (!points || points.length <= 0) return false;
+   
+     prepareVisual();
+   
+     let now = new Date();
+     let timestamp = formatDate(now);
 
-    prepareVisual();
-
-    let now = new Date();
-    let timestamp = formatDate(now);
-
-    let serialStars = points.map(s => ({
-      pos: { x: s.pos.x, y: s.pos.y, z: s.pos.z },
-      emo: s.emo
-    }));
-
-    let newConstellation = { stars: serialStars, created: timestamp };
-    allConstellations.push(newConstellation);
-    localStorage.setItem("myConstellations", JSON.stringify(allConstellations));
-
-    state = "visual";
-    addButton.hide();
-    okButton.hide();
-    backButton.show();
-    visualStartTime = millis();
-
-    return false;
+     let serialStars = points.map(s => ({
+       pos: { x: s.pos?.x ?? 0, y: s.pos?.y ?? 0, z: s.pos?.z ?? 0 },
+       emo: s.emo ?? { en: "", ja: "" }
+     }));
+   
+     let newConstellation = { stars: serialStars, created: timestamp };
+     allConstellations.push(newConstellation);
+     localStorage.setItem("myConstellations", JSON.stringify(allConstellations));
+   
+     state = "visual";
+     addButton.hide();
+     okButton.hide();
+     backButton.show();
+     visualStartTime = millis();
+   
+     return false;
   });
 
   /* -------------------- 戻るボタン -------------------- */
