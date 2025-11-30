@@ -32,7 +32,7 @@ function preload() {
    setup
    ========================================================= */
 function setup() {
-  createCanvas(windowWidth, windowHeight, WEBGL);
+  let cvs = createCanvas(windowWidth, windowHeight, WEBGL);
 
   // ボタン
   cvs.elt.style.position = "absolute";
