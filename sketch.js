@@ -267,7 +267,12 @@ function touchMoved() {
 
   // ---- gallery スワイプスクロール
   if (state === "gallery") {
-    targetScrollY += moveY * 0.8;
+    if (touches && touches.length > 0) {
+        let my = touches[0].y;
+        let dy = my - lastY;
+        targetScrollY += dy * 0.8;
+        lastY = my;
+    }
     return false;
   }
 
