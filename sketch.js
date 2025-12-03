@@ -70,17 +70,7 @@ function setup() {
     styleButton(b);
   }
   backButton.hide();
-
-   function positionButtons() {
-     okButton.position(
-       windowWidth / 2 - okButton.width / 2,
-       windowHeight - okButton.height - 20
-     );
-     addButton.position(20, windowHeight - addButton.height - 20);
-     backButton.position(20, 20);
-     galleryButton.position(windowWidth - galleryButton.width - 40, 20);
-   }
-
+   
    // ---- タッチイベント
   /* -------------------- 追加ボタン -------------------- */
   addButton.elt.addEventListener("touchstart", (e) => {
@@ -469,12 +459,23 @@ function mouseWheel(event) {
 function positionButtons() {
   if (!addButton || !okButton || !backButton || !galleryButton) return;
 
-  okButton.position(
-    windowWidth / 2 - okButton.width / 2,
-    windowHeight - okButton.height - 20
-  );
+   addButton.position (
+      20,
+      windowHeight - addButton.height - 20
+   );
 
-  addButton.position(20, windowHeight - addButton.height - 20);
-  backButton.position(20, 20);
-  galleryButton.position(windowWidth - galleryButton.width - 40, 20);
+   okButton.position (
+      windowWidth / 2 - okButton.width / 2,
+      windowHeight / 2 - okButton.height / 2
+   );
+
+   backButton.position (
+      20,
+      20
+   );
+
+   galleryButton.position (
+      windowWidth / 2 - galleryButton.width - 40,
+      20
+   );
 }
