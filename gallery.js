@@ -85,12 +85,19 @@ function drawGallery2D(allConstellations, galleryButton) {
   scrollY = lerp(scrollY, targetScrollY, 0.25);
   let y = topOffset + scrollY;
 
-  let maxThumb = min(180, width * 0.28);
-  let colCount = floor((width - outerPad * 2) / (maxThumb + gutter));
-  colCount = constrain(colCount, 1, 4);
+  let maxThumb = 180;
+  let minThumb = 60;
+  let colCount = 1;
+  for (let c = 4; c >= 1; c--) {
+    let possibleSize = (width - outerPad * 2 - gutter * (c - 1) / c;
+    if (possibleSize >= minThumb) {
+      colCount = c;
+      break;
+    }
+  }
 
-  let thumbSize = floor((width - outerPad * 2 - gutter * (colCount - 1)) / colCount);
-  thumbSize = constrain(thumbSize, 60, maxThumb);
+  let thumbSize = (width - outerPad * 2 - gutter * (colCount - 1)) / colCount;
+  thumbSize = constrain(thumbSize, minThumb, maxThumb);
 
   // 月ごとに分類
   let grouped = {};
