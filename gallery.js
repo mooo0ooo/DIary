@@ -89,7 +89,7 @@ function drawGallery2D(allConstellations, galleryButton) {
   let minThumb = 60;
   let colCount = 1;
   for (let c = 4; c >= 1; c--) {
-    let possibleSize = (width - outerPad * 2 - gutter * (c - 1) / c;
+    let possibleSize = (width - outerPad * 2 - gutter * (c - 1)) / c;
     if (possibleSize >= minThumb) {
       colCount = c;
       break;
