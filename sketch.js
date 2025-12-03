@@ -410,7 +410,7 @@ function touchEnded() {
          if (!m) continue;
          grouped[int(m[2]) - 1].push(c);
        }
-       let yOff = galleryTopOffset + galleryScrollY;
+       let yOff = galleryTopOffset + scrollY;
        for (let month = 0; month < 12; month++) {
          let list = grouped[month];
          if (list.length === 0) continue;
