@@ -41,9 +41,6 @@ function styleButton(btn) {
 
 function drawPADButtons() {
 
-  let cx = width / 2 / padLayout.scl;
-  let cy = height / 2 / padLayout.scl;
-
   computeBtnSize();
 
   const rows = 3;
@@ -69,21 +66,21 @@ function drawPADButtons() {
   padLayout.cx = 0;
   padLayout.cy = 0;
 
-  const cx = padLayout.cx;
-  const cy = padLayout.cy;
+  const centerX = padLayout.cx;
+  const centerY = padLayout.cy;
 
   // === P ===
   for (let i = 0; i < 7; i++) {
-    let x = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
-    let y = cy - 160;
+    let x = centerX + (i - 3) * (padLayout.btnSize + padLayout.spacing);
+    let y = centerY - 160;
     let col = lerpColor(color(255,150,0), color(0,100,255), i / 6);
     drawButton(x, y, padLayout.btnSize, col, i, selectedP === i, "rect");
   }
 
   // === A ===
   for (let i = 0; i < 7; i++) {
-    let x = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
-    let y = cy;
+    let x = centerX + (i - 3) * (padLayout.btnSize + padLayout.spacing);
+    let y = centerY;
     let col = lerpColor(color(255,220,0), color(0,0,100), i / 6);
     let sides = int(map(i, 0, 6, 3, 30));
     drawButton(x, y, padLayout.btnSize, col, i, selectedA === i, "polygon", sides);
@@ -91,8 +88,8 @@ function drawPADButtons() {
 
   // === D ===
   for (let i = 0; i < 7; i++) {
-    let x = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
-    let y = cy + 160;
+    let x = centerX + (i - 3) * (padLayout.btnSize + padLayout.spacing);
+    let y = centerY + 160;
     let col = color(200);
     let sides = int(map(i, 0, 6, 4, 30));
     drawButton(x, y, padLayout.btnSize, col, i, selectedD === i, "polygon", sides);
@@ -100,7 +97,6 @@ function drawPADButtons() {
 
   pop();
 }
-
 
 function drawButton(x,y,btnSize_,col,index,isSelected,shapeType,sides=4) {
   push();
