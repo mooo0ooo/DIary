@@ -149,7 +149,7 @@ function drawGallery2D(allConstellations, galleryButton) {
     contentBottom = y;
   }
 
-  let minScroll = Math.min(0, height - contentBottom - 80; 
+  let minScroll = Math.min(0, height - contentBottom - 80); 
   targetScrollY = constrain(targetScrollY, minScroll, 0);
   scrollY       = constrain(scrollY, minScroll, 0);
 }
