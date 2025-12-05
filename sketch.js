@@ -505,11 +505,8 @@ function drawPADPage() {
 function mouseWheel(event) {
   if (state === "gallery") {
     targetScrollY -= event.delta * 0.5;
+    targetScrollY = constrain(targetScrollY, maxScrollY, 0);
     return false;
-  }
-  if (state === "visual") {
-    camDistance += event.delta * 0.9;
-    camDistance = constrain(camDistance, 200, 2000);
   }
   return false;
 }
