@@ -168,7 +168,6 @@ function drawGallery2D(list) {
   }
 
   // スクロール限界値を反映
-   galleryMinScroll = min(0, height - totalHeight - 40);
+   galleryMinScroll = Math.min(0, height - totalHeight);
   targetScrollY = constrain(targetScrollY, galleryMinScroll, 0);
-
 }
