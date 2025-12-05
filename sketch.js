@@ -388,11 +388,17 @@ function drawPADPage() {
    
      // ---- select mode: PAD
      if (state === "select") {
-         let mx = x / padLayout.scl;
-         let my = y / padLayout.scl;
-         
-         let cx = width / 2 / padLayout.scl;
-         let cy = height / 2 / padLayout.scl;
+        let offsetX = 0;
+        let offsetY = -height * 0.06;
+      
+        let tx = x - (width / 2 + offsetX);
+        let ty = y - (height / 2 + offsetY);
+      
+        let mx = tx / padLayout.scl;
+        let my = ty / padLayout.scl;
+      
+        let cx = padLayout.cx;  
+        let cy = padLayout.cy;  
    
      // === P row ===
      for (let i = 0; i < 7; i++) {
