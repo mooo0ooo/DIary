@@ -4,17 +4,40 @@ let visualStartTime = 0;
 
 function prepareVisual() {
   points = [];
-  for (let v of padValues) {
-    let emo = findClosestEmotion(v.P, v.A, v.D);
-    let x = map(v.P, 0, 1, -100, 100);
-    let y = map(v.A, 0, 1, -100, 100);
-    let z = map(v.D, 0, 1, -100, 100);
-    points.push({ pos: createVector(x,y,z), emo: emo });
+
+  if (cons === null) {
+    // PAD選択ルート
+    for (let v of padValues) {
+      let emo = findClosestEmotion(v.P, v.A, v.D);
+      let x = map(v.P, 0, 1, -100, 100);
+      let y = map(v.A, 0, 1, -100, 100);
+      let z = map(v.D, 0, 1, -100, 100);
+
+      points.push({
+        pos: createVector(x, y, z),
+        emo: emo
+      });
+     }
+   } else {
+    // galleryページルート
+    for (let s of cons.stars) {
+      points.push({
+        pos: createVector(s.pos.x, s.pos.y, s.pos.z),
+        emo: s.emo
+      });
+    }
   }
-  stars = [];
+
+  // 共通
   for (let i = 0; i < 400; i++) {
-    stars.push({ x: random(-2000,2000), y: random(-2000,2000), z: random(-2000,2000), twinkle: random(1000) });
+    stars.push({
+      x: random(-2000, 2000),
+      y: random(-2000, 2000),
+      z: random(-2000, 2000),
+      twinkle: random(1000)
+    });
   }
+
   visualStartTime = millis();
 }
 
@@ -84,27 +107,3 @@ function drawVisualMode() {
     }
   }
 }
-
-function prepareVisualFromConstellation(cons) {
-  points = [];
-
-  for (let s of cons.stars) {
-    points.push({
-      pos: createVector(s.pos.x, s.pos.y, s.pos.z),
-      emo: s.emo
-    });
-  }
-
-  stars = [];
-  for (let i = 0; i < 400; i++) {
-    stars.push({
-      x: random(-2000, 2000),
-      y: random(-2000, 2000),
-      z: random(-2000, 2000),
-      twinkle: random(1000)
-    });
-  }
-
-  visualStartTime = millis();
-}
-
