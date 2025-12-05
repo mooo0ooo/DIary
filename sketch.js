@@ -137,8 +137,12 @@ function setup() {
      state = "gallery";
      addButton.hide();
      okButton.hide();
+     galleryButton.hide();
      backButton.show();
      galleryStars = [];
+
+     scrollY = 0;
+      targetScrollY = 0:
    }
    galleryButton.touchStarted(onGallery);
 
