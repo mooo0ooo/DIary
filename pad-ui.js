@@ -39,11 +39,11 @@ function drawPADButtons() {
   const cols = 7;
 
   const rawW = cols * (padLayout.btnSize + padLayout.spacing);
-  const rawH = (padLayout.btnSize * 3) + (padLayout.spacing * 2) + 320;
+  const rawH = (padLayout.btnSize * 3) + (padLayout.spacing * 2) + 200;
 
   padLayout.scl = min(
-    (width * 0.90) / rawW,
-    (height * 0.90) / rawH,
+    (width * 0.75) / rawW,
+    (height * 0.75) / rawH,
     1
   );
 
