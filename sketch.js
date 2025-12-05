@@ -79,7 +79,7 @@ function setup() {
 
   /* -------------------- タッチイベント -------------------- */
    // addボタン
-   addButton.mousePressed(() => {
+   function onAdd(){
      if(selectedP == null || selectedA == null || selectedD == null) return;
    
      padValues.push({
@@ -91,10 +91,12 @@ function setup() {
      selectedP = null;
      selectedA = null;
      selectedD = null;
-   });
-
+   }
+   addButton.mousePressed(onAdd);
+   addButton.touchStarted(onAdd);
+   
    // okボタン
-   okButton.mousePressed(() => {
+   function onOK(){
      if (!padValues || padValues.length <= 0) return;
    
      prepareVisual();
@@ -116,25 +118,33 @@ function setup() {
      okButton.hide();
      backButton.show();
      visualStartTime = millis();
-   });
-
+   }
+   okButton.mousePressed(onOK);
+   okButton.touchStarted(onOK);
+   
+   
    // backボタン
-   backButton.mousePressed(() => {
+   function onBack(){
      state = "select";
      addButton.show();
      okButton.show();
      backButton.hide();
      selectedLabel = null;
-   });
-
+   }
+   backButton.mousePressed(onBack);
+   backButton.touchStarted(onBack);
+   
+   
    // galleryボタン
-   galleryButton.mousePressed(() => {
+   function onGallery(){
      state = "gallery";
      addButton.hide();
      okButton.hide();
      backButton.show();
      galleryStars = [];
-   });
+   }
+   galleryButton.mousePressed(onGallery);
+   galleryButton.touchStarted(onGallery);
 
   /* -------------------- 背景の星 -------------------- */
   for (let i = 0; i < bgStarCount; i++) {
