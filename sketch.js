@@ -443,24 +443,25 @@ function drawPADPage() {
    }
    
      // ---- gallery: サムネイル選択
-     if (state === "gallery") {
-       let mx = x, my = y;
-        
-       let maxThumb = 180;
-       let minThumb = 60;
-        
-       let colCount = 1;
-       for (let c = 4; c >= 1; c--) {
+      if (state === "gallery") {
+        let mx = x, my = y;
+      
+        let maxThumb = 180;
+        let minThumb = 60;
+      
+        let colCount = 1;
+        for (let c = 4; c >= 1; c--) {
           let possibleSize = (width - outerPad * 2 - gutter * (c - 1)) / c;
           if (possibleSize >= minThumb) {
             colCount = c;
             break;
           }
-       }
-
+        }
+      
         let thumbSize = (width - outerPad * 2 - gutter * (colCount - 1)) / colCount;
         thumbSize = constrain(thumbSize, minThumb, maxThumb);
       
+        // --- 月ごとグループ ---
         let grouped = {};
         for (let i = 0; i < 12; i++) grouped[i] = [];
         for (let c of allConstellations) {
@@ -468,24 +469,28 @@ function drawPADPage() {
           if (!m) continue;
           grouped[int(m[2]) - 1].push(c);
         }
-
+      
         let yOff = topOffset + scrollY;
-
+      
         for (let month = 0; month < 12; month++) {
-           let list = grouped[month];
-           if (list.length === 0) continue; 
-
-           yOff += 40;
-
-           let index = 0;
-           for (let cons of list) {
-              let col = index % colCount;
-              let row = Math.floor(index / colCount);
-
-              let x0 = outerPad + col * (thumbSize + gutter);
-              let ty = yOff + row * (thumbSize + 35);
-
-              if (mx > x0 && mx < x0 + thumbSize && my > ty && my < ty + thumbSize) {
+          let list = grouped[month];
+          if (list.length === 0) continue;
+      
+          yOff += 40;
+      
+          let totalRowWidth = colCount * thumbSize + (colCount - 1) * gutter;
+          let xStart = (width - totalRowWidth) / 2;
+      
+          let index = 0;
+          for (let cons of list) {
+            let col = index % colCount;
+            let row = Math.floor(index / colCount);
+      
+            let x0 = xStart + col * (thumbSize + gutter);
+            let ty = yOff + row * (thumbSize + 35);
+      
+            if (mx > x0 && mx < x0 + thumbSize &&
+                my > ty && my < ty + thumbSize) {
               selectedLabel = cons.created;
               state = "visual";
               prepareVisual(cons);
