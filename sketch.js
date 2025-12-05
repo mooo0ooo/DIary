@@ -388,17 +388,15 @@ function drawPADPage() {
    
      // ---- select mode: PAD
      if (state === "select") {
-        let offsetX = 0;
-        let offsetY = 0;
-      
-        let tx = x - (width / 2 + offsetX);
-        let ty = y - (height / 2 + offsetY);
-      
-        let mx = tx / padLayout.scl;
-        let my = ty / padLayout.scl;
-      
-        let cx = padLayout.cx;  
-        let cy = padLayout.cy;  
+
+     let tx = x - width / 2;
+     let ty = y - height / 2;
+   
+     let mx = tx / padLayout.scl;
+     let my = ty / padLayout.scl;
+   
+     let cx = 0;
+     let cy = 0; 
    
      // === P row ===
      for (let i = 0; i < 7; i++) {
@@ -413,7 +411,7 @@ function drawPADPage() {
          return;
        }
      }
-   
+        
      // === A row ===
      for (let i = 0; i < 7; i++) {
        let bx = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
@@ -518,21 +516,24 @@ function mouseWheel(event) {
 function positionButtons() {
   if (!addButton || !okButton || !backButton || !galleryButton) return;
 
-  // ---- PAD モード ----
+  let addW = addButton.size().width  || 120;
+  let okW  = okButton.size().width   || 120;
+  let galW = galleryButton.size().width || 160;
+
   if (state === "select") {
 
     addButton.position(
-      windowWidth / 2 - addButton.size().width - 10,
-      windowHeight - addButton.size().height - 20
+      windowWidth / 2 - addW - 20,
+      windowHeight - 120
     );
 
     okButton.position(
-      windowWidth / 2 + 10,
-      windowHeight - okButton.size().height - 20
+      windowWidth / 2 + 20,
+      windowHeight - 120
     );
 
     galleryButton.position(
-      windowWidth / 2 - galleryButton.size().width / 2,
+      windowWidth / 2 - galW / 2,
       20
     );
 
@@ -540,15 +541,9 @@ function positionButtons() {
     return;
   }
 
-  // ---- Visual モード ----
-  if (state === "visual") {
-    backButton.position(20, 20);
-    return;
-  }
-
-  // ---- Gallery モード ----
-  if (state === "gallery") {
+  if (state === "visual" || state === "gallery") {
     backButton.position(20, 20);
     return;
   }
 }
+
