@@ -59,38 +59,22 @@ function generateThumbnail(cons, size) {
   return pg;
 }
 
-function drawGallery2D(allConstellations, galleryButton) {
-  if (galleryStars.length === 0) {
-    for (let i = 0; i < 400; i++) {
-      galleryStars.push({
-        x: random(-2000,2000),
-        y: random(-2000,2000),
-        z: random(-2000,2000),
-        twinkle: random(1000),
-        baseSize: random(1,4)
-      });
-    }
-  }
+function drawGallery2D(list) {
+  background(10, 10, 25);
 
-  background(5,5,20);
+  // スクロール反映
+  scrollY = lerp(scrollY, targetScrollY, 0.15);
 
-  for (let s of galleryStars) {
-    let tw = noise(s.twinkle + frameCount*0.01);
-    let size = s.baseSize * map(tw, 0, 1, 0.3, 1.2);
-    fill(255,200);
-    circle(s.x * 0.08 + width/2, s.y * 0.08 + height/2, size);
-  }
-
-  // スクロール
-  scrollY = lerp(scrollY, targetScrollY, 0.25);
-  let y = topOffset + scrollY;
+  let yOff = topOffset + scrollY;
 
   let maxThumb = 180;
   let minThumb = 60;
+
+  // 列数
   let colCount = 1;
   for (let c = 4; c >= 1; c--) {
-    let possibleSize = (width - outerPad * 2 - gutter * (c - 1)) / c;
-    if (possibleSize >= minThumb) {
+    let possible = (width - outerPad * 2 - gutter * (c - 1)) / c;
+    if (possible >= minThumb) {
       colCount = c;
       break;
     }
@@ -102,54 +86,69 @@ function drawGallery2D(allConstellations, galleryButton) {
   // 月ごとに分類
   let grouped = {};
   for (let i = 0; i < 12; i++) grouped[i] = [];
-  for (let c of allConstellations) {
+
+  for (let c of list) {
     let m = c.created.match(/(\d+)\D+(\d+)\D+(\d+)/);
     if (!m) continue;
     grouped[int(m[2]) - 1].push(c);
   }
 
-  let monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-
-  let contentBottom = 0;
+  // 総高さ計算
+  let totalHeight = topOffset;
 
   for (let month = 0; month < 12; month++) {
-    let list = grouped[month];
-    if (list.length === 0) continue;
 
-    fill(255); textSize(26); textAlign(LEFT, TOP);
-    text(monthNames[month], outerPad, y);
-    y += 40;
+    let gl = grouped[month];
+    if (gl.length === 0) continue;
+
+    // 月タイトル
+    push();
+    fill(220);
+    textSize(22);
+    textAlign(LEFT, CENTER);
+    text(`${month + 1}月`, outerPad, yOff);
+    pop();
+
+    yOff += 40;
+    totalHeight += 40;
 
     let index = 0;
-    let rows = ceil(list.length / colCount);
 
-    for (let cons of list) {
+    for (let cons of gl) {
       let col = index % colCount;
-      let row = floor(index / colCount);
+      let row = Math.floor(index / colCount);
 
-      let x = outerPad + col * (thumbSize + gutter);
-      let ty = y + row * (thumbSize + 35);
+      let x0 = outerPad + col * (thumbSize + gutter);
+      let ty = yOff + row * (thumbSize + 35);
 
+      // サムネ背景
       push();
-      translate(x, ty);
-      stroke(150,80); noFill();
-      rect(0,0,thumbSize,thumbSize,12);
+      fill(40);
+      rect(x0, ty, thumbSize, thumbSize, 12);
+      pop();
 
-      if (!cons.thumbnail) cons.thumbnail = generateThumbnail(cons, thumbSize);
-      image(cons.thumbnail, 0, 0, thumbSize, thumbSize);
-
-      fill(240); textSize(10); textAlign(LEFT, TOP);
-      text(cons.created, 0, thumbSize + 6);
+      // 日付
+      push();
+      fill(200);
+      textSize(14);
+      textAlign(LEFT, TOP);
+      text(cons.created, x0, ty + thumbSize + 5);
       pop();
 
       index++;
     }
 
-    y += rows * (thumbSize + 35) + 40;
-    contentBottom = y;
+    let blockHeight =
+      Math.ceil(gl.length / colCount) * (thumbSize + 35) + 40;
+
+    yOff += blockHeight;
+    totalHeight += blockHeight;
   }
 
-  let minScroll = Math.min(0, height - contentBottom - 80); 
+  // スクロール制限
+  let minScroll = min(0, height - totalHeight - 60);
   targetScrollY = constrain(targetScrollY, minScroll, 0);
-  scrollY       = constrain(scrollY, minScroll, 0);
+
+  // 戻るボタン
+  backButton.show();
 }
