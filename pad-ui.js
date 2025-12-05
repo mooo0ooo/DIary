@@ -1,5 +1,4 @@
 let selectedP = null, selectedA = null, selectedD = null;
-let padValues = [];
 let padLayout = { cx:0, cy:0, btnSize:50, spacing:10, scl:1 };
 
 function computeBtnSize() {
