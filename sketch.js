@@ -74,6 +74,8 @@ function setup() {
   }
   backButton.hide();
 
+  positionButtons
+
   /* -------------------- タッチイベント -------------------- */
    // addボタン
    addButton.mousePressed(() => {
@@ -89,7 +91,7 @@ function setup() {
      selectedA = null;
      selectedD = null;
    });
-   
+
    // okボタン
    okButton.mousePressed(() => {
      if (!padValues || padValues.length <= 0) return;
