@@ -481,7 +481,7 @@ function positionButtons() {
 
    okButton.position (
       windowWidth / 2 - okButton.size().width / 2,
-      windowHeight / 2 - okButton.size().height / 2
+      20
    );
 
    backButton.position (
