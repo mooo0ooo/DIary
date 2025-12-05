@@ -166,7 +166,8 @@ function drawGallery2D(list) {
 
   // スクロール制限
   let minScroll = min(0, height - totalHeight - 60);
-  targetScrollY = constrain(targetScrollY, minScroll, 0);
+  galleryMinScroll = minScroll;
+  targetScrollY = constrain(targetScrollY, galleryMinScroll, 0);
 
   // 戻るボタン
   backButton.show();
