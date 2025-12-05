@@ -116,4 +116,3 @@ function drawVisualMode() {
     pop();
   }
 }
-}
