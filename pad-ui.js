@@ -40,7 +40,9 @@ function styleButton(btn) {
 }
 
 function drawPADButtons() {
-  let cx = 0, cy = 0;
+  let cx = width / 2;
+  let cy = height / 2 - 40;
+  
   let safeW = width * 0.9;
   let safeH = height * 0.75;
   let neededW = (padLayout.btnSize + padLayout.spacing) * 7;
