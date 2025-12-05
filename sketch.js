@@ -516,24 +516,28 @@ function mouseWheel(event) {
 function positionButtons() {
   if (!addButton || !okButton || !backButton || !galleryButton) return;
 
-  let addW = addButton.size().width  || 120;
-  let okW  = okButton.size().width   || 120;
-  let galW = galleryButton.size().width || 160;
+  let bw = addButton.size().width;
+  let bh = addButton.size().height;
+  if (bw === 0 || bh === 0) {
+    setTimeout(positionButtons, 50);
+    return;
+  }
 
+  // ---- PAD 選択モード ----
   if (state === "select") {
 
     addButton.position(
-      windowWidth / 2 - addW - 20,
-      windowHeight - 120
+      windowWidth / 2 - bw - 10,
+      windowHeight - bh - 20
     );
 
     okButton.position(
-      windowWidth / 2 + 20,
-      windowHeight - 120
+      windowWidth / 2 + 10,
+      windowHeight - okButton.size().height - 20
     );
 
     galleryButton.position(
-      windowWidth / 2 - galW / 2,
+      windowWidth / 2 - galleryButton.size().width / 2,
       20
     );
 
@@ -541,9 +545,15 @@ function positionButtons() {
     return;
   }
 
-  if (state === "visual" || state === "gallery") {
+  // ---- visual ----
+  if (state === "visual") {
+    backButton.position(20, 20);
+    return;
+  }
+
+  // ---- gallery ----
+  if (state === "gallery") {
     backButton.position(20, 20);
     return;
   }
 }
-
