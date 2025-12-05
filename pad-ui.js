@@ -55,9 +55,6 @@ function drawPADButtons() {
 
   scale(padLayout.scl);
 
-  padLayout.cx = 0;
-  padLayout.cy = 0;
-
   const cx = 0;
   const cy = 0;
 
