@@ -60,7 +60,26 @@ function generateThumbnail(cons, size) {
 }
 
 function drawGallery2D(list) {
-  background(10, 10, 25);
+  background(5, 5, 20);
+
+  if (galleryStars.length === 0) {
+    for (let i = 0; i < 400; i++) {
+      galleryStars.push({
+        x: random(-2000,2000),
+        y: random(-2000,2000),
+        z: random(-2000,2000),
+        twinkle: random(1000),
+        baseSize: random(1,4)
+      });
+    }
+  }
+
+  for (let s of galleryStars) {
+    let tw = noise(s.twinkle + frameCount*0.01);
+    let size = s.baseSize * map(tw, 0, 1, 0.3, 1.2);
+    fill(255,200);
+    circle(s.x * 0.08 + width/2, s.y * 0.08 + height/2, size);
+  }
 
   // スクロール反映
   scrollY = lerp(scrollY, targetScrollY, 0.15);
