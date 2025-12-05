@@ -6,22 +6,25 @@ function prepareVisual() {
   points = [];
   stars = [];
 
+  // ---- PADページから来た場合 ----
   if (cons === null) {
-    // PAD選択ルート
     for (let v of padValues) {
+
       let x = map(v.p, 0, 6, -100, 100);
       let y = map(v.a, 0, 6, -100, 100);
       let z = map(v.d, 0, 6, -100, 100);
 
-      let emo = findClosestEmotion(v.p, v.a, v.d);
+      let emo = findClosestEmotion(v.p / 6, v.a / 6, v.d / 6);
 
       points.push({
         pos: createVector(x, y, z),
         emo: emo
       });
-     }
-   } else {
-    // galleryページルート
+    }
+  }
+
+  // ---- ギャラリーから来た場合 ----
+  else {
     for (let s of cons.stars) {
       points.push({
         pos: createVector(s.pos.x, s.pos.y, s.pos.z),
