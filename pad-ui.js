@@ -38,8 +38,14 @@ function drawPADButtons() {
   const rows = 3;
   const cols = 7;
 
-  const rawW = cols * (padLayout.btnSize + padLayout.spacing);
-  const rawH = (padLayout.btnSize * 3) + (padLayout.spacing * 2) + 200;
+  const rawW =
+    padLayout.btnSize * 7 +
+    padLayout.spacing * 6;
+
+  const rawH =
+    padLayout.btnSize * 3 +
+    padLayout.spacing * 2 +
+    320;
 
   padLayout.scl = min(
     (width * 0.75) / rawW,
@@ -48,9 +54,8 @@ function drawPADButtons() {
   );
 
   push();
-
-  translate(width / 2, height / 2);
   scale(padLayout.scl);
+  translate(width / (2 * padLayout.scl), height / (2 * padLayout.scl));
 
   const cx = 0;
   const cy = 0;
