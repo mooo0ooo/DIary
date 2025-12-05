@@ -142,7 +142,7 @@ function setup() {
      galleryStars = [];
 
      scrollY = 0;
-      targetScrollY = 0:
+   　targetScrollY = 0;
    }
    galleryButton.touchStarted(onGallery);
 
