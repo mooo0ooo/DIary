@@ -389,7 +389,7 @@ function drawPADPage() {
      // ---- select mode: PAD
      if (state === "select") {
         let offsetX = 0;
-        let offsetY = -height * 0.06;
+        let offsetY = 0;
       
         let tx = x - (width / 2 + offsetX);
         let ty = y - (height / 2 + offsetY);
