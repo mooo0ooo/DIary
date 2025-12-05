@@ -84,7 +84,7 @@ function drawGallery2D(list) {
   // スクロール反映
   scrollY = lerp(scrollY, targetScrollY, 0.15);
 
-  let yOff = topOffset + scrollY;
+  let yOff = topOffset + targetScrollY;
 
   let maxThumb = 180;
   let minThumb = 60;
@@ -92,15 +92,17 @@ function drawGallery2D(list) {
   // 列数
   let colCount = 1;
   for (let c = 4; c >= 1; c--) {
-    let possible = (width - outerPad * 2 - gutter * (c - 1)) / c;
-    if (possible >= minThumb) {
+    let possibleSize = (width - outerPad * 2 - gutter * (c - 1)) / c;
+    if (possibleSize >= 60) {
       colCount = c;
       break;
     }
   }
 
   let thumbSize = (width - outerPad * 2 - gutter * (colCount - 1)) / colCount;
-  thumbSize = constrain(thumbSize, minThumb, maxThumb);
+  thumbSize = constrain(thumbSize, 60, 180);
+
+  let totalHeight = topOffset;
 
   // 月ごとに分類
   let grouped = {};
@@ -112,63 +114,56 @@ function drawGallery2D(list) {
     grouped[int(m[2]) - 1].push(c);
   }
 
-  // 総高さ計算
-  let totalHeight = topOffset;
+  for (let month = 0; month < 12; month++) {
+    let arr = grouped[month];
+    if (arr.length === 0) continue;
+
+    totalHeight += 40; // 月見出し
+
+    let rows = Math.ceil(arr.length / colCount);
+    totalHeight += rows * (thumbSize + 35); // サムネの行
+    totalHeight += 40; // 月の余白
+  }
+  // スクロール限界値を反映
+   galleryMinScroll = min(0, height - totalHeight - 40);
+  targetScrollY = constrain(targetScrollY, galleryMinScroll, 0);
+
+  yOff = topOffset + targetScrollY;
+
+  textAlign(LEFT, TOP);
+  textSize(20);
+  fill(255);
 
   for (let month = 0; month < 12; month++) {
-
-    let gl = grouped[month];
-    if (gl.length === 0) continue;
+    let arr = grouped[month];
+    if (arr.length === 0) continue;
 
     // 月タイトル
-    push();
-    fill(220);
-    textSize(22);
-    textAlign(LEFT, CENTER);
-    text(`${month + 1}月`, outerPad, yOff);
-    pop();
-
+    text(`${month + 1} 月`, 20, yOff);
     yOff += 40;
-    totalHeight += 40;
 
+    // サムネ表示
     let index = 0;
-
-    for (let cons of gl) {
+    for (let cons of arr) {
       let col = index % colCount;
       let row = Math.floor(index / colCount);
 
       let x0 = outerPad + col * (thumbSize + gutter);
-      let ty = yOff + row * (thumbSize + 35);
+      let y0 = yOff + row * (thumbSize + 35);
 
-      // サムネ背景
-      push();
-      fill(40);
-      rect(x0, ty, thumbSize, thumbSize, 12);
-      pop();
+      // サムネ枠
+      noStroke();
+      fill(255, 255, 255, 30);
+      rect(x0, y0, thumbSize, thumbSize, 10);
 
-      // 日付
-      push();
-      fill(200);
+      // テキスト
+      fill(255);
       textSize(14);
-      textAlign(LEFT, TOP);
-      text(cons.created, x0, ty + thumbSize + 5);
-      pop();
+      text(cons.created, x0 + 5, y0 + thumbSize + 5);
 
       index++;
     }
 
-    let blockHeight =
-      Math.ceil(gl.length / colCount) * (thumbSize + 35) + 40;
-
-    yOff += blockHeight;
-    totalHeight += blockHeight;
+    yOff += Math.ceil(arr.length / colCount) * (thumbSize + 35) + 40;
   }
-
-  // スクロール制限
-  let minScroll = min(0, height - totalHeight - 60);
-  galleryMinScroll = minScroll;
-  targetScrollY = constrain(targetScrollY, galleryMinScroll, 0);
-
-  // 戻るボタン
-  backButton.show();
 }
