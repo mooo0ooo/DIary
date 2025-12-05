@@ -398,43 +398,57 @@ function touchEnded() {
      // ---- gallery: サムネイル選択
      if (state === "gallery") {
        let mx = x, my = y;
-       let maxThumb = min(180, width * 0.28);
-       let colCount = floor((width - galleryOuterPad * 2) / (maxThumb + galleryGutter));
-       colCount = constrain(colCount, 1, 4);
-       let thumbSize = floor((width - galleryOuterPad * 2 - galleryGutter * (colCount - 1)) / colCount);
-       thumbSize = constrain(thumbSize, 60, maxThumb);
-       let grouped = {};
-       for (let i = 0; i < 12; i++) grouped[i] = [];
-       for (let c of allConstellations) {
-         let m = c.created.match(/(\d+)\D+(\d+)\D+(\d+)/);
-         if (!m) continue;
-         grouped[int(m[2]) - 1].push(c);
+        
+       let maxThumb = 180;
+       let minThumb = 60;
+        
+       let colCount = 1;
+       for (let c = 4; c >= 1; c--) {
+          let possibleSize = (width - outerPad * 2 - gutter * (c - 1)) / c;
+          if (possibleSize >= minThumb) {
+            colCount = c;
+            break;
+          }
        }
-       let yOff = galleryTopOffset + scrollY;
-       for (let month = 0; month < 12; month++) {
-         let list = grouped[month];
-         if (list.length === 0) continue;
-         yOff += 40;
-         let index = 0;
-         let rows = ceil(list.length / colCount);
-         for (let cons of list) {
-           let col = index % colCount;
-           let row = floor(index / colCount);
-           let x0 = galleryOuterPad + col * (thumbSize + galleryGutter);
-           let ty = yOff + row * (thumbSize + 35);
-           if (mx > x0 && mx < x0 + thumbSize && my > ty && my < ty + thumbSize) {
-             selectedLabel = cons.created + "";
-             state = "visual";
-             addButton.show();
-             okButton.show();
-             backButton.hide();
-             return;
-           }
-           index++;
-         }
-         yOff += rows * (thumbSize + 35) + 40;
-       }
-       return;
+
+        let thumbSize = (width - outerPad * 2 - gutter * (colCount - 1)) / colCount;
+        thumbSize = constrain(thumbSize, minThumb, maxThumb);
+      
+        let grouped = {};
+        for (let i = 0; i < 12; i++) grouped[i] = [];
+        for (let c of allConstellations) {
+          let m = c.created.match(/(\d+)\D+(\d+)\D+(\d+)/);
+          if (!m) continue;
+          grouped[int(m[2]) - 1].push(c);
+        }
+
+        let yOff = topOffset + scrollY;
+
+        for (let month = 0; month < 12; month++) {
+           let list = grouped[month];
+           if (list.length === 0) continue; 
+
+           yOff += 40;
+
+           let index = 0;
+           for (let cons of list) {
+              let col = index % colCount;
+              let row = Math.floor(index / colCount);
+
+              let x0 = outerPad + col * (thumbSize + gutter);
+              let ty = yOff + row * (thumbSize + 35);
+
+              if (mx > x0 && mx < x0 + thumbSize && my > ty && my < ty + thumbSize) {
+              selectedLabel = cons.created;
+              state = "visual";
+              prepareVisual(cons);
+              return;
+            }
+      
+            index++;
+          }
+      
+          yOff += Math.ceil(list.length / colCount) * (thumbSize + 35) + 40;
      }
    }
 
@@ -461,12 +475,12 @@ function positionButtons() {
 
    addButton.position (
       20,
-      windowHeight - addButton.height - 20
+      windowHeight - addButton.size().height - 20
    );
 
    okButton.position (
-      windowWidth / 2 - okButton.width / 2,
-      windowHeight / 2 - okButton.height / 2
+      windowWidth / 2 - okButton.size().width / 2,
+      windowHeight / 2 - okButton.size().height / 2
    );
 
    backButton.position (
@@ -475,7 +489,7 @@ function positionButtons() {
    );
 
    galleryButton.position (
-      windowWidth / 2 - galleryButton.width - 40,
+      windowWidth / 2 - galleryButton.size().width - 40,
       20
    );
 }
