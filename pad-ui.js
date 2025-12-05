@@ -41,6 +41,9 @@ function styleButton(btn) {
 
 function drawPADButtons() {
 
+  let cx = width / 2 / padLayout.scl;
+  let cy = height / 2 / padLayout.scl;
+
   computeBtnSize();
 
   const rows = 3;
