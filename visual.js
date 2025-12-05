@@ -1,4 +1,3 @@
-let points = [];
 let stars = [];
 let visualStartTime = 0;
 
