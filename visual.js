@@ -84,3 +84,27 @@ function drawVisualMode() {
     }
   }
 }
+
+function prepareVisualFromConstellation(cons) {
+  points = [];
+
+  for (let s of cons.stars) {
+    points.push({
+      pos: createVector(s.pos.x, s.pos.y, s.pos.z),
+      emo: s.emo
+    });
+  }
+
+  stars = [];
+  for (let i = 0; i < 400; i++) {
+    stars.push({
+      x: random(-2000, 2000),
+      y: random(-2000, 2000),
+      z: random(-2000, 2000),
+      twinkle: random(1000)
+    });
+  }
+
+  visualStartTime = millis();
+}
+
