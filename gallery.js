@@ -135,10 +135,6 @@ function drawGallery2D(list) {
     let arr = grouped[month];
     if (arr.length === 0) continue;
 
-    // スクロール限界値を反映
-   galleryMinScroll = min(0, height - totalHeight - 40);
-  targetScrollY = constrain(targetScrollY, galleryMinScroll, 0);
-
     // 月タイトル
     text(`${month + 1} 月`, 20, yOff);
     yOff += 40;
@@ -167,4 +163,9 @@ function drawGallery2D(list) {
 
     yOff += Math.ceil(arr.length / colCount) * (thumbSize + 35) + 40;
   }
+
+  // スクロール限界値を反映
+   galleryMinScroll = min(0, height - totalHeight - 40);
+  targetScrollY = constrain(targetScrollY, galleryMinScroll, 0);
+
 }
