@@ -1,10 +1,13 @@
-let state = "select";
-
 let cvs;
 
 let myFont;
 
 let addButton, okButton, backButton, galleryButton;
+
+// ----PAD 用
+let state = "select";
+let padValues = [];
+let points = [];
 
 let allConstellations = [];
 let selectedLabel = null;
@@ -75,40 +78,50 @@ function setup() {
   /* -------------------- 追加ボタン -------------------- */
   addButton.elt.addEventListener("touchstart", (e) => {
      e.preventDefault();
-     state = "select";
-     selectedLabel = null;
-     addButton.show();
-     okButton.show();
-     backButton.hide();
-   }, { passive: false });
+
+     if(selectedP == null || selectedA == null || selectedD == null) return;
+
+     // PAD値を記録
+     padValues.push({
+        p: selectedP,
+        a: selectedA,
+        d: selectedD
+     });
+
+     // PADボタンをリセット
+     selectedP = null;
+     selectedA = null;
+     selectedD = null;
+  });
 
   /* -------------------- OK ボタン -------------------- */
   okButton.elt.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    
-    if (!padValues || padValues.length <= 0) return;
-    if (!points || points.length <= 0) return;
+  e.preventDefault();
 
-    prepareVisual();
+  if (!padValues || padValues.length <= 0) return;
 
-    let now = new Date();
-     let timestamp = formatDate(now);
-   
-     let serialStars = points.map(s => ({
-       pos: { x: s.pos?.x ?? 0, y: s.pos?.y ?? 0, z: s.pos?.z ?? 0 },
-       emo: s.emo ?? { en: "", ja: "" }
-     }));
-   
-     let newConstellation = { stars: serialStars, created: timestamp };
-     allConstellations.push(newConstellation);
-     localStorage.setItem("myConstellations", JSON.stringify(allConstellations));
-   
-     state = "visual";
-     addButton.hide();
-     okButton.hide();
-     backButton.show();
-     visualStartTime = millis();
-   }, { passive: false });
+  // PAD → 3D点群を作る
+  prepareVisual();  
+
+  let now = new Date();
+  let timestamp = formatDate(now);
+
+  // 星データを保存
+  let serialStars = points.map(s => ({
+    pos: { x: s.pos?.x ?? 0, y: s.pos?.y ?? 0, z: s.pos?.z ?? 0 },
+    emo: s.emo ?? { en: "", ja: "" }
+  }));
+
+  let newConstellation = { stars: serialStars, created: timestamp };
+  allConstellations.push(newConstellation);
+  localStorage.setItem("myConstellations", JSON.stringify(allConstellations));
+
+  state = "visual";
+  addButton.hide();
+  okButton.hide();
+  backButton.show();
+  visualStartTime = millis();
+});
 
   /* -------------------- 戻るボタン -------------------- */
   backButton.elt.addEventListener("touchstart", (e) => {
@@ -209,10 +222,16 @@ function draw() {
     return;
   }
 
-  // select
+  // PADページ
   if (state === "select") {
     camera();
     drawPADButtons();
+     
+    addButton.show();
+    okButton.show();
+    galleryButton.show();
+    backButton.hide();
+     
     return;
   }
 
@@ -328,6 +347,18 @@ function touchEnded() {
   return false;
 }
 
+/* =========================================================
+   PADページ
+   ========================================================= */
+function drawPADPage() {
+   background(5, 5, 20);
+
+   drawPADButtons();
+
+   addButton.show();
+   okButton.show();
+   galleryButton.show();
+}
 
 /* =========================================================
    ギャラリー内タップ
