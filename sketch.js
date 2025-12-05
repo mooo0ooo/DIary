@@ -392,42 +392,48 @@ function drawPADPage() {
    
      // ---- select mode: PAD
      if (state === "select") {
-       let mx = x / padLayout.scl;
-       let my = y / padLayout.scl;
-       let cx = padLayout.cx, cy = padLayout.cy;
+        let mx = (x - width/2) / padLayout.scl;
+        let my = (y - height/2) / padLayout.scl;
+        let cx = padLayout.cx, cy = padLayout.cy;
    
-       // P
-       for (let i = 0; i < 7; i++) {
-         let bx = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
-         let by = cy - 120;
-         if (mx > bx - padLayout.btnSize / 2 && mx < bx + padLayout.btnSize / 2 &&
-           my > by - padLayout.btnSize / 2 && my < by + padLayout.btnSize / 2) {
-           selectedP = i;
-           return;
-         }
-       }
+     // === P row ===
+     for (let i = 0; i < 7; i++) {
+       let bx = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
+       let by = cy - 160;
    
-       // A
-       for (let i = 0; i < 7; i++) {
-         let bx = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
-         let by = cy;
-         if (dist(mx, my, bx, by) < padLayout.btnSize / 2) {
-           selectedA = i;
-           return;
-         }
+       if (mx > bx - padLayout.btnSize/2 &&
+           mx < bx + padLayout.btnSize/2 &&
+           my > by - padLayout.btnSize/2 &&
+           my < by + padLayout.btnSize/2) {
+         selectedP = i;
+         return;
        }
-   
-       // D
-       for (let i = 0; i < 7; i++) {
-         let bx = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
-         let by = cy + 120;
-         if (dist(mx, my, bx, by) < padLayout.btnSize / 2) {
-           selectedD = i;
-           return;
-         }
-       }
-       return;
      }
+   
+     // === A row ===
+     for (let i = 0; i < 7; i++) {
+       let bx = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
+       let by = cy;
+   
+       if (dist(mx, my, bx, by) < padLayout.btnSize/2) {
+         selectedA = i;
+         return;
+       }
+     }
+   
+     // === D row ===
+     for (let i = 0; i < 7; i++) {
+       let bx = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
+       let by = cy + 160;
+   
+       if (dist(mx, my, bx, by) < padLayout.btnSize/2) {
+         selectedD = i;
+         return;
+       }
+     }
+   
+     return;
+   }
    
      // ---- gallery: サムネイル選択
      if (state === "gallery") {
