@@ -507,7 +507,6 @@ function mouseWheel(event) {
   if (state === "gallery") {
     targetScrollY -= event.delta * 0.5;
     targetScrollY = constrain(targetScrollY, galleryMinScroll, 0);
-
     return false;
   }
   return false;
