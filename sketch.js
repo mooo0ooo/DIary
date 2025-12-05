@@ -74,7 +74,8 @@ function setup() {
   }
   backButton.hide();
 
-  positionButtons
+  positionButtons();
+  setTimeout(positionButtons, 50);
 
   /* -------------------- タッチイベント -------------------- */
    // addボタン
