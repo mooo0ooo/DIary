@@ -92,7 +92,6 @@ function setup() {
      selectedA = null;
      selectedD = null;
    }
-   addButton.mousePressed(onAdd);
    addButton.touchStarted(onAdd);
    
    // okボタン
@@ -119,7 +118,6 @@ function setup() {
      backButton.show();
      visualStartTime = millis();
    }
-   okButton.mousePressed(onOK);
    okButton.touchStarted(onOK);
    
    
@@ -131,7 +129,6 @@ function setup() {
      backButton.hide();
      selectedLabel = null;
    }
-   backButton.mousePressed(onBack);
    backButton.touchStarted(onBack);
    
    
@@ -143,7 +140,6 @@ function setup() {
      backButton.show();
      galleryStars = [];
    }
-   galleryButton.mousePressed(onGallery);
    galleryButton.touchStarted(onGallery);
 
   /* -------------------- 背景の星 -------------------- */
@@ -514,23 +510,37 @@ function mouseWheel(event) {
 function positionButtons() {
   if (!addButton || !okButton || !backButton || !galleryButton) return;
 
-   addButton.position (
-      20,
+  // ---- PAD モード ----
+  if (state === "select") {
+
+    addButton.position(
+      windowWidth / 2 - addButton.size().width - 10,
       windowHeight - addButton.size().height - 20
-   );
+    );
 
-   okButton.position (
-      windowWidth / 2 - okButton.size().width / 2,
-      20
-   );
+    okButton.position(
+      windowWidth / 2 + 10,
+      windowHeight - okButton.size().height - 20
+    );
 
-   backButton.position (
-      20,
+    galleryButton.position(
+      windowWidth / 2 - galleryButton.size().width / 2,
       20
-   );
+    );
 
-   galleryButton.position (
-      windowWidth / 2 - galleryButton.size().width - 40,
-      20
-   );
+    backButton.position(20, 20);
+    return;
+  }
+
+  // ---- Visual モード ----
+  if (state === "visual") {
+    backButton.position(20, 20);
+    return;
+  }
+
+  // ---- Gallery モード ----
+  if (state === "gallery") {
+    backButton.position(20, 20);
+    return;
+  }
 }
