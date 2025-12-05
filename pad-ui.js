@@ -40,14 +40,6 @@ function styleButton(btn) {
   });
 }
 
-function addPAD() {
-  let p = (selectedP !== null ? selectedP : 3) / 6;
-  let a = (selectedA !== null ? selectedA : 3) / 6;
-  let d = (selectedD !== null ? selectedD : 3) / 6;
-  padValues.push({P: p, A: a, D: d});
-  selectedP = null; selectedA = null; selectedD = null;
-}
-
 function drawPADButtons() {
   let cx = 0, cy = 0;
   let safeW = width * 0.9;
