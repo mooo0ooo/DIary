@@ -441,7 +441,7 @@ function touchEnded() {
               if (mx > x0 && mx < x0 + thumbSize && my > ty && my < ty + thumbSize) {
               selectedLabel = cons.created;
               state = "visual";
-              prepareVisual(cons);
+              prepareVisual();
               return;
             }
       
