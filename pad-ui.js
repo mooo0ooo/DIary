@@ -43,16 +43,17 @@ function drawPADButtons() {
 
   computeBtnSize();
 
-  // --- レイアウトサイズの計算 ---
   const rows = 3;
   const cols = 7;
 
-  const totalW = cols * (padLayout.btnSize + padLayout.spacing);
-  const totalH = rows * (padLayout.btnSize + padLayout.spacing) + 120;
+  const rawW = cols * (padLayout.btnSize + padLayout.spacing);
+  const rawH = rows * (padLayout.btnSize + padLayout.spacing) + 200; // 120→200 に拡大
 
-  let sclX = (width * 0.9) / totalW;
-  let sclY = (height * 0.7) / totalH;
-  padLayout.scl = min(sclX, sclY, 1);  // 1 を超えないように
+  padLayout.scl = min(
+    (width * 0.9) / rawW,
+    (height * 0.85) / rawH,
+    1
+  );
 
   push();
   translate(width / 2, height / 2);
@@ -64,15 +65,15 @@ function drawPADButtons() {
   const cx = padLayout.cx;
   const cy = padLayout.cy;
 
-  // ========== P 行（Rect） ==========
+  // === P ===
   for (let i = 0; i < 7; i++) {
     let x = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
-    let y = cy - 120;
+    let y = cy - 160; 
     let col = lerpColor(color(255,150,0), color(0,100,255), i / 6);
     drawButton(x, y, padLayout.btnSize, col, i, selectedP === i, "rect");
   }
 
-  // ========== A 行（多角形） ==========
+  // === A ===
   for (let i = 0; i < 7; i++) {
     let x = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
     let y = cy;
@@ -81,10 +82,10 @@ function drawPADButtons() {
     drawButton(x, y, padLayout.btnSize, col, i, selectedA === i, "polygon", sides);
   }
 
-  // ========== D 行（多角形） ==========
+  // === D ===
   for (let i = 0; i < 7; i++) {
     let x = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
-    let y = cy + 120;
+    let y = cy + 160; 
     let col = color(200);
     let sides = int(map(i, 0, 6, 4, 30));
     drawButton(x, y, padLayout.btnSize, col, i, selectedD === i, "polygon", sides);
