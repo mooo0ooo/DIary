@@ -131,6 +131,8 @@ function setup() {
     okButton.show();
     backButton.hide();
     selectedLabel = null;
+
+    computeBtnSize();
   }, { passive: false });
 
   /* -------------------- ギャラリーボタン -------------------- */
@@ -141,6 +143,8 @@ function setup() {
     okButton.hide();
     backButton.show();
     galleryStars = [];
+
+    computeBtnSize();
   }, { passive: false });
 
   /* -------------------- 背景の星 -------------------- */
@@ -152,6 +156,8 @@ function setup() {
       tw: random(1000)
     });
   }
+
+   computeBtnSize();
 }
 
 
@@ -161,6 +167,7 @@ function setup() {
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   positionButtons();
+  computeBtnSize();
 }
 
 
