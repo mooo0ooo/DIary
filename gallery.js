@@ -138,6 +138,9 @@ function drawGallery2D(list) {
     // 月タイトル
     text(`${month + 1} 月`, 20, yOff);
     yOff += 40;
+    
+    let totalRowWidth = colCount * thumbSize + (colCount - 1) * gutter;
+    let xStart = (width - totalRowWidth) / 2;
 
     // サムネ表示
     let index = 0;
@@ -145,7 +148,7 @@ function drawGallery2D(list) {
       let col = index % colCount;
       let row = Math.floor(index / colCount);
 
-      let x0 = outerPad + col * (thumbSize + gutter);
+      let x0 = xStart + col * (thumbSize + gutter);
       let y0 = yOff + row * (thumbSize + 35);
 
       // サムネ枠
