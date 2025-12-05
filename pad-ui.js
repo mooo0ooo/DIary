@@ -39,26 +39,23 @@ function drawPADButtons() {
   const cols = 7;
 
   const rawW = cols * (padLayout.btnSize + padLayout.spacing);
-  const rawH = rows * (padLayout.btnSize + padLayout.spacing) + 200;
+  const rawH = (padLayout.btnSize * 3) + (padLayout.spacing * 2) + 320;
 
   padLayout.scl = min(
-    (width * 0.92) / rawW,
-    (height * 0.88) / rawH,
+    (width * 0.90) / rawW,
+    (height * 0.90) / rawH,
     1
   );
 
   push();
 
-  const offsetX = 0;
-  const offsetY = 0;
-  translate(width / 2 + offsetX, height / 2 + offsetY);
-
+  translate(width / 2, height / 2);
   scale(padLayout.scl);
 
   const cx = 0;
   const cy = 0;
-
-  // ===== P 行 =====
+  
+  // ----- P row -----
   for (let i = 0; i < 7; i++) {
     let x = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
     let y = cy - 160;
@@ -66,7 +63,7 @@ function drawPADButtons() {
     drawButton(x, y, padLayout.btnSize, col, i, selectedP === i, "rect");
   }
 
-  // ===== A 行 =====
+  // ----- A row -----
   for (let i = 0; i < 7; i++) {
     let x = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
     let y = cy;
@@ -75,7 +72,7 @@ function drawPADButtons() {
     drawButton(x, y, padLayout.btnSize, col, i, selectedA === i, "polygon", sides);
   }
 
-  // ===== D 行 =====
+  // ----- D row -----
   for (let i = 0; i < 7; i++) {
     let x = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
     let y = cy + 160;
