@@ -449,7 +449,8 @@ function touchEnded() {
           }
       
           yOff += Math.ceil(list.length / colCount) * (thumbSize + 35) + 40;
-     }
+        }
+      }
    }
 
 /* =========================================================
