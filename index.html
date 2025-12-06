@@ -6,6 +6,18 @@
   <title>DIary</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
   <link rel="stylesheet" href="style.css">
+  <script>
+  // グローバルエラーハンドラ
+  window.addEventListener('error', function(event) {
+    console.error('グローバルエラー:', {
+      メッセージ: event.message,
+      ファイル: event.filename,
+      行: event.lineno,
+      列: event.colno,
+      エラー: event.error
+    });
+  }, true);
+</script>
 </head>
 <body>
   <!-- デバッグ用の要素 -->
@@ -25,6 +37,20 @@
     document.addEventListener('DOMContentLoaded', function() {
       console.log("DOMが読み込まれました");
     });
+    <script>
+  console.log("動的読み込みを開始します");
+  
+  const script = document.createElement('script');
+  script.src = 'sketch.js';
+  script.onload = function() {
+    console.log("sketch.js の読み込みに成功しました");
+    console.log("p5.js バージョン:", typeof p5 !== 'undefined' ? p5.VERSION : 'p5.js が読み込まれていません');
+  };
+  script.onerror = function(error) {
+    console.error("sketch.js の読み込みに失敗しました", error);
+  };
+  document.body.appendChild(script);
+</script>
   </script>
   <script src="sketch.js"></script>
 </body>
