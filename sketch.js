@@ -50,6 +50,7 @@ function preload() {
    ========================================================= */
 function setup() {
   console.log("p5.js setup() が呼び出されました");
+  drawPADButtons();
 
   galleryMinScroll = 0;
   targetScrollY = 0;
