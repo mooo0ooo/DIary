@@ -127,6 +127,7 @@ function setup() {
      state = "select";
      addButton.show();
      okButton.show();
+     galleryButton.show(); 
      backButton.hide();
      selectedLabel = null;
    }
