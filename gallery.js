@@ -59,7 +59,7 @@ function generateThumbnail(cons, size) {
   return pg;
 }
 
-function drawGallery2D(list) {
+function drawGallery2D(allConstellations) {
   resetMatrix();
   camera();
   translate(-width/2, -height/2);
