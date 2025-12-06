@@ -452,28 +452,30 @@ function drawPADPage() {
         let maxThumb = 180;
         let minThumb = 60;
       
+        // === 列数計算 ===
         let colCount = 1;
         for (let c = 4; c >= 1; c--) {
-          let possibleSize = (width - outerPad * 2 - gutter * (c - 1)) / c;
+          let possibleSize = (width - galleryOuterPad * 2 - galleryGutter * (c - 1)) / c;
           if (possibleSize >= minThumb) {
             colCount = c;
             break;
           }
         }
       
-        let thumbSize = (width - outerPad * 2 - gutter * (colCount - 1)) / colCount;
+        let thumbSize = (width - galleryOuterPad * 2 - galleryGutter * (colCount - 1)) / colCount;
         thumbSize = constrain(thumbSize, minThumb, maxThumb);
       
-        // --- 月ごとグループ ---
+        // === 月ごとにまとめる ===
         let grouped = {};
         for (let i = 0; i < 12; i++) grouped[i] = [];
+      
         for (let c of allConstellations) {
           let m = c.created.match(/(\d+)\D+(\d+)\D+(\d+)/);
           if (!m) continue;
           grouped[int(m[2]) - 1].push(c);
         }
       
-        let yOff = topOffset + scrollY;
+        let yOff = galleryTopOffset + scrollY;
       
         for (let month = 0; month < 12; month++) {
           let list = grouped[month];
@@ -481,7 +483,10 @@ function drawPADPage() {
       
           yOff += 40;
       
-          let totalRowWidth = colCount * thumbSize + (colCount - 1) * gutter;
+          let totalRowWidth =
+            colCount * thumbSize +
+            (colCount - 1) * galleryGutter;
+      
           let xStart = (width - totalRowWidth) / 2;
       
           let index = 0;
@@ -489,11 +494,13 @@ function drawPADPage() {
             let col = index % colCount;
             let row = Math.floor(index / colCount);
       
-            let x0 = xStart + col * (thumbSize + gutter);
+            let x0 = xStart + col * (thumbSize + galleryGutter);
             let ty = yOff + row * (thumbSize + 35);
       
+            // === タップ判定 ===
             if (mx > x0 && mx < x0 + thumbSize &&
                 my > ty && my < ty + thumbSize) {
+      
               selectedLabel = cons.created;
               state = "visual";
               prepareVisual(cons);
