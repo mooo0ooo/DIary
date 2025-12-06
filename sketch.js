@@ -243,7 +243,7 @@ function draw() {
   if (state === "gallery") {
     resetMatrix();
     drawBackgroundStars();
-    drawGallery2D(list);
+    drawGallery2D(allConstellations);
     return;
   }
 }
