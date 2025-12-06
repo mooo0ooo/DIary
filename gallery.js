@@ -60,6 +60,10 @@ function generateThumbnail(cons, size) {
 }
 
 function drawGallery2D(list) {
+  resetMatrix();
+  camera();
+  translate(-width/2, -height/2);
+  
   background(5, 5, 20);
 
   if (galleryStars.length === 0) {
