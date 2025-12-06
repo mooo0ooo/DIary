@@ -1,3 +1,4 @@
+console.log("sketch.js が読み込まれました");
 let cvs;
 
 let myFont;
