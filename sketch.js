@@ -27,14 +27,16 @@ let bgStars = [];
 let bgStarCount = 300;
 
 // ---- gallery 用
-let scrollY = 0;
-let targetScrollY = 0;
 
 let galleryOuterPad = 20;
 let galleryGutter = 12;
-let galleryTopOffset = 40;
-
+let galleryStars = [];
 let galleryMinScroll = 0;
+let targetScrollY = 0;
+let scrollY = 0;
+let lastTouchY = 0;
+let isDragging = false;
+let galleryTopOffset = 40;
 
 /* =========================================================
    preload
@@ -48,6 +50,11 @@ function preload() {
    ========================================================= */
 function setup() {
   console.log("p5.js setup() が呼び出されました");
+
+  galleryMinScroll = 0;
+  targetScrollY = 0;
+  scrollY = 0;
+  
   createCanvas(windowWidth, windowHeight);
    
   cvs = createCanvas(windowWidth, windowHeight, WEBGL);
@@ -160,10 +167,11 @@ function setup() {
    galleryButton.touchStarted(onGallery);
 
   /* -------------------- 背景の星 -------------------- */
-  for (let i = 0; i < bgStarCount; i++) {
+  bgStars = [];
+for (let i = 0; i < 500; i++) {
     bgStars.push({
-      x: random(-width * 2, width * 2),
-      y: random(-height * 2, height * 2),
+      x: random(-width * 3, width * 3),
+      y: random(-height * 3, height * 3),
       z: random(-2000, 200),
       tw: random(1000)
     });
