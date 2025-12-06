@@ -10,8 +10,15 @@ let padLayout = {
 
 // ボタンサイズ計算
 function computeBtnSize() {
-  padLayout.btnSize = constrain(floor(min(width, height) * 0.10), 40, 90);
-  padLayout.spacing = floor(padLayout.btnSize * 0.25);
+  const minDimension = min(width, height);
+  if (minDimension < 600) {
+    // スマホ向け
+    padLayout.btnSize = min(60, max(40, minDimension * 0.12));
+  } else {
+    // タブレット・デスクトップ向け
+    padLayout.btnSize = min(90, max(60, minDimension * 0.08));
+  }
+  padLayout.spacing = padLayout.btnSize * 0.3;
 }
 
 // DOM ボタンのスタイル
@@ -39,14 +46,18 @@ function drawPADButtons() {
   const cols = 7;
   const padding = 20;
 
-  const verticalSpacing= height * 0.2;
+  const verticalSpacing = min(height * 0.18, width * 0.15);
 
   padLayout.cx = width/2;
   padLayout.cy = height/2;
 
+  // スケールを計算（画面サイズに応じて調整）
+  const maxWidth = (padLayout.btnSize * cols) + (padLayout.spacing * (cols - 1));
+  const maxHeight = (padLayout.btnSize * rows) + (verticalSpacing * 2);
+
   padLayout.scl = min(
-    (width - padding * 2) / (padLayout.btnSize * cols + padLayout.spacing * (cols - 1)),
-    (height - padding * 2 - verticalSpacing * 2) / (padLayout.btnSize * rows + verticalSpacing * 2),
+    (width - padding * 2) / maxWidth,
+    (height - padding * 2) / maxHeight,
     1
   );
 
