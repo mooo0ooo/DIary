@@ -59,121 +59,125 @@ function generateThumbnail(cons, size) {
   return pg;
 }
 
-function drawGallery2D(allConstellations) {
-  resetMatrix();
-  camera();
+function drawGallery2D(constellations) {
+  push();
   translate(-width/2, -height/2);
   
-  background(5, 5, 20);
-
-  if (galleryStars.length === 0) {
-    for (let i = 0; i < 400; i++) {
-      galleryStars.push({
-        x: random(-2000,2000),
-        y: random(-2000,2000),
-        z: random(-2000,2000),
-        twinkle: random(1000),
-        baseSize: random(1,4)
-      });
-    }
-  }
-
-  for (let s of galleryStars) {
-    let tw = noise(s.twinkle + frameCount*0.01);
-    let size = s.baseSize * map(tw, 0, 1, 0.3, 1.2);
-    fill(255,200);
-    circle(s.x * 0.08 + width/2, s.y * 0.08 + height/2, size);
-  }
-
-  // スクロール反映
-  scrollY = lerp(scrollY, targetScrollY, 0.15);
-
-  let yOff = galleryTopOffset + targetScrollY;
-
-  let maxThumb = 180;
-  let minThumb = 60;
-
-  // 列数
-  let colCount = 1;
-  for (let c = 4; c >= 1; c--) {
-    let possibleSize = (width - galleryOuterPad * 2 - galleryGutter * (c - 1)) / c;
-    if (possibleSize >= 60) {
-      colCount = c;
-      break;
-    }
-  }
-
-  let thumbSize = (width - outerPad * 2 - gutter * (colCount - 1)) / colCount;
-  thumbSize = constrain(thumbSize, 60, 180);
-
-  let totalHeight = topOffset;
-
-  // 月ごとに分類
+  // 背景の暗いグラデーション
+  let gradient = drawingContext.createLinearGradient(0, 0, 0, height);
+  gradient.addColorStop(0, color(5, 5, 30, 200));
+  gradient.addColorStop(1, color(0, 0, 20, 200));
+  drawingContext.fillStyle = gradient;
+  drawingContext.fillRect(0, 0, width, height);
+  
+  // スクロール位置を更新
+  scrollY += (targetScrollY - scrollY) * 0.1;
+  
+  // 月ごとにグループ化
   let grouped = {};
-  for (let i = 0; i < 12; i++) grouped[i] = [];
-
-  for (let c of list) {
-    let m = c.created.match(/(\d+)\D+(\d+)\D+(\d+)/);
-    if (!m) continue;
-    grouped[int(m[2]) - 1].push(c);
+  let monthNames = ["1月", "2月", "3月", "4月", "5月", "6月", 
+                   "7月", "8月", "9月", "10月", "11月", "12月"];
+  
+  for (let i = 0; i < 12; i++) {
+    grouped[i] = [];
   }
-
-  for (let month = 0; month < 12; month++) {
-    let arr = grouped[month];
-    if (arr.length === 0) continue;
-
-    totalHeight += 40; // 月見出し
-
-    let rows = Math.ceil(arr.length / colCount);
-    totalHeight += rows * (thumbSize + 35); // サムネの行
-    totalHeight += 40; // 月の余白
-  }
-
-  yOff = topOffset + targetScrollY;
-
-  textAlign(LEFT, TOP);
-  textSize(20);
-  fill(255);
-
-  for (let month = 0; month < 12; month++) {
-    let arr = grouped[month];
-    if (arr.length === 0) continue;
-
-    // 月タイトル
-    text(`${month + 1} 月`, 20, yOff);
-    yOff += 40;
-    
-    let totalRowWidth = colCount * thumbSize + (colCount - 1) * gutter;
-    let xStart = (width - totalRowWidth) / 2;
-
-    // サムネ表示
-    let index = 0;
-    for (let cons of arr) {
-      let col = index % colCount;
-      let row = Math.floor(index / colCount);
-
-      let x0 = xStart + col * (thumbSize + gutter);
-      let y0 = yOff + row * (thumbSize + 35);
-
-      // サムネ枠
-      noStroke();
-      fill(255, 255, 255, 30);
-      rect(x0, y0, thumbSize, thumbSize, 10);
-
-      // テキスト
-      fill(255);
-      textSize(14);
-      text(cons.created, x0 + 5, y0 + thumbSize + 5);
-
-      index++;
+  
+  for (let c of constellations) {
+    let m = c.created ? c.created.match(/(\d+)\.\s*(\d+)\.\s*(\d+)/) : null;
+    if (m) {
+      let month = parseInt(m[2]) - 1;
+      grouped[month].push(c);
     }
-
-    yOff += Math.ceil(arr.length / colCount) * (thumbSize + 35) + 40;
   }
-
-  // スクロール限界値を反映
-  galleryMinScroll = height - totalHeight;
-
+  
+  // ギャラリー描画
+  let yPos = galleryTopOffset + scrollY;
+  let thumbSize = min(150, (width - 60) / 3);
+  let gap = 20;
+  
+  // 月ごとに表示
+  for (let month = 0; month < 12; month++) {
+    let monthData = grouped[month];
+    if (monthData.length === 0) continue;
+    
+    // 月の見出し
+    fill(255);
+    textSize(24);
+    textAlign(LEFT, 'top');
+    text(monthNames[month] + "の記録", 30, yPos);
+    yPos += 40;
+    
+    // サムネイルを描画
+    let xPos = 30;
+    let itemsPerRow = floor((width - 60) / (thumbSize + gap));
+    itemsPerRow = max(1, min(4, itemsPerRow));
+    
+    for (let i = 0; i < monthData.length; i++) {
+      let item = monthData[i];
+      let row = floor(i / itemsPerRow);
+      let col = i % itemsPerRow;
+      
+      let x = xPos + col * (thumbSize + gap);
+      let y = yPos + row * (thumbSize + 40);
+      
+      // サムネイルの背景
+      fill(20, 20, 40, 200);
+      stroke(80, 80, 120, 100);
+      strokeWeight(1);
+      rect(x, y, thumbSize, thumbSize, 8);
+      
+      // 星座を描画
+      if (item.stars && item.stars.length > 0) {
+        push();
+        translate(x + thumbSize/2, y + thumbSize/2);
+        let scale = thumbSize * 0.4;
+        
+        // 星を描画
+        for (let star of item.stars) {
+          let x = (star.pos?.x || 0) * scale;
+          let y = (star.pos?.y || 0) * scale;
+          let z = (star.pos?.z || 0) * 0.5;
+          let size = map(z, -100, 100, 1, 3, true);
+          
+          fill(255, 255, 200);
+          noStroke();
+          ellipse(x, y, size * 2);
+        }
+        
+        // 線で結ぶ
+        if (item.stars.length > 1) {
+          stroke(100, 180, 255, 150);
+          strokeWeight(1.5);
+          noFill();
+          beginShape();
+          for (let star of item.stars) {
+            let x = (star.pos?.x || 0) * scale;
+            let y = (star.pos?.y || 0) * scale;
+            vertex(x, y);
+          }
+          endShape();
+        }
+        pop();
+      }
+      
+      // 日付を表示
+      if (item.created) {
+        fill(180);
+        textSize(12);
+        textAlign(CENTER, 'top');
+        text(item.created, x + thumbSize/2, y + thumbSize + 5);
+      }
+    }
+    
+    // 次の月の位置を計算
+    let rows = ceil(monthData.length / itemsPerRow);
+    yPos += rows * (thumbSize + 40) + 30;
+  }
+  
+  // スクロール範囲を制限
+  galleryMinScroll = min(galleryMinScroll, height - yPos - 100);
   targetScrollY = constrain(targetScrollY, galleryMinScroll, 0);
   scrollY = constrain(scrollY, galleryMinScroll, 0);
+  
+  pop();
 }
