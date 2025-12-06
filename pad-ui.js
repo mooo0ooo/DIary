@@ -37,51 +37,44 @@ function drawPADButtons() {
 
   const rows = 3;
   const cols = 7;
+  const padding = 20;
 
-  const rawW =
-    padLayout.btnSize * 7 +
-    padLayout.spacing * 6;
+  const verticalSpacing= height * 0.2;
 
-  const rawH =
-    padLayout.btnSize * 3 +
-    padLayout.spacing * 2 +
-    320;
+  padLayout.cx = width/2;
+  padLayout.cy = height/2;
 
   padLayout.scl = min(
-    (width * 0.75) / rawW,
-    (height * 0.75) / rawH,
+    (width - padding * 2) / (padLayout.btnSize * cols + padLayout.spacing * (cols - 1)),
+    (height - padding * 2 - verticalSpacing * 2) / (padLayout.btnSize * rows + verticalSpacing * 2),
     1
   );
 
   push();
+  translate(padLayout.cx, padLayout.cy);
   scale(padLayout.scl);
-  translate(width / (2 * padLayout.scl), height / (2 * padLayout.scl));
-
-  const cx = 0;
-  const cy = 0;
-  const verticalSpacing = height * 0.2;
   
-  // ----- P row -----
+  // ----- P -----
   for (let i = 0; i < 7; i++) {
-    let x = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
-    let y = cy - 160;
+    let x = (i - 3) * (padLayout.btnSize + padLayout.spacing);
+    let y = -verticalSpacing;
     let col = lerpColor(color(255,150,0), color(0,100,255), i/6);
     drawButton(x, y, padLayout.btnSize, col, i, selectedP === i, "rect");
   }
 
-  // ----- A row -----
+  // ----- A -----
   for (let i = 0; i < 7; i++) {
-    let x = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
-    let y = cy;
+    let x = (i - 3) * (padLayout.btnSize + padLayout.spacing);
+    let y = 0;
     let col = lerpColor(color(255,220,0), color(0,0,100), i / 6);
     let sides = int(map(i, 0, 6, 3, 30));
     drawButton(x, y, padLayout.btnSize, col, i, selectedA === i, "polygon", sides);
   }
 
-  // ----- D row -----
+  // ----- D -----
   for (let i = 0; i < 7; i++) {
-    let x = cx + (i - 3) * (padLayout.btnSize + padLayout.spacing);
-    let y = cy + 160;
+    let x = (i - 3) * (padLayout.btnSize + padLayout.spacing);
+    let y = verticalSpacing;
     let col = color(200);
     let sides = int(map(i, 0, 6, 4, 30));
     drawButton(x, y, padLayout.btnSize, col, i, selectedD === i, "polygon", sides);
