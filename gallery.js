@@ -88,7 +88,7 @@ function drawGallery2D(list) {
   // スクロール反映
   scrollY = lerp(scrollY, targetScrollY, 0.15);
 
-  let yOff = topOffset + targetScrollY;
+  let yOff = galleryTopOffset + targetScrollY;
 
   let maxThumb = 180;
   let minThumb = 60;
@@ -96,7 +96,7 @@ function drawGallery2D(list) {
   // 列数
   let colCount = 1;
   for (let c = 4; c >= 1; c--) {
-    let possibleSize = (width - outerPad * 2 - gutter * (c - 1)) / c;
+    let possibleSize = (width - galleryOuterPad * 2 - galleryGutter * (c - 1)) / c;
     if (possibleSize >= 60) {
       colCount = c;
       break;
