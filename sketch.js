@@ -355,10 +355,13 @@ function touchEnded() {
    PADページ
    ========================================================= */
 function drawPADPage() {
+   resetMatrix();
+   camera();
+   translate(-width/2, -height/2);
+   
    background(5, 5, 20);
 
    drawPADButtons();
-
    addButton.show();
    okButton.show();
    galleryButton.show();
