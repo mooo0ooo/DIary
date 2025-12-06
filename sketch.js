@@ -69,7 +69,7 @@ function setup() {
 
   for (let b of [addButton, okButton, backButton, galleryButton]) {
     b.style("position", "absolute");
-    b.style("z-index", "200");
+    b.style("z-index", "9999");
     b.style("pointer-events", "auto");
     styleButton(b);
   }
