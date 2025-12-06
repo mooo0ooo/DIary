@@ -59,6 +59,7 @@ function drawPADButtons() {
 
   const cx = 0;
   const cy = 0;
+  const verticalSpacing = height * 0.2;
   
   // ----- P row -----
   for (let i = 0; i < 7; i++) {
