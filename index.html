@@ -11,15 +11,12 @@
   <!-- デバッグ用の要素 -->
   <div id="debug" style="position: fixed; top: 10px; left: 10px; color: white; z-index: 1000; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px;"></div>
   
-  <!-- スクリプトの順序を確認 -->
   <script src="utils.js"></script>
   <script src="emotions.js"></script>
   <script src="camera.js"></script>
   <script src="pad-ui.js"></script>
   <script src="visual.js"></script>
   <script src="gallery.js"></script>
-  
-  <!-- sketch.jsを最後に読み込む -->
   <script>
     console.log("sketch.js を読み込みます...");
     document.addEventListener('DOMContentLoaded', function() {
