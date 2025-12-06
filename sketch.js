@@ -586,3 +586,48 @@ function positionButtons() {
     return;
   }
 }
+
+/* =========================================================
+   星空
+   ========================================================= */
+function drawBackgroundStars() {
+  push();
+  noStroke();
+
+  for (let i = 0; i < bgStars.length; i++) {
+    let s = bgStars[i];
+    
+    // 星の点滅
+    let twinkle = (sin((millis() * 0.1 + i * 100) * 0.1) + 1) * 0.5;
+    twinkle = map(twinkle, 0, 1, 0.3, 1);
+    
+    // 星のサイズ
+    let starSize = map(twinkle, 0.3, 1, 0.5, 2.5);
+    
+    // 星の色
+    let starColor = color(
+      200 + random(55),
+      200 + random(55),
+      255,
+      map(twinkle, 0.3, 1, 100, 255)
+    );
+    
+    fill(starColor);
+    push();
+    translate(s.x, s.y, s.z);
+    sphere(starSize);
+    pop();
+  }
+
+  // 星を追加（画面外にも配置）
+  if (random() < 0.1 && bgStars.length < 500) {
+    bgStars.push({
+      x: random(-width * 3, width * 3),
+      y: random(-height * 3, height * 3),
+      z: random(-2000, 200),
+      tw: random(1000)
+    });
+  }
+
+  pop();
+}
