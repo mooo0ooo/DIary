@@ -1,4 +1,11 @@
-console.log("sketch.js が読み込まれました");
+console.log("sketch.js が実行されました");
+
+// グローバルなエラーハンドラ
+window.onerror = function(message, source, lineno, colno, error) {
+  console.error("エラーが発生しました:", {message, source, lineno, colno, error});
+  return true; // デフォルトのエラーハンドラを防ぐ
+};
+
 let cvs;
 
 let myFont;
@@ -40,6 +47,9 @@ function preload() {
    setup
    ========================================================= */
 function setup() {
+  console.log("p5.js setup() が呼び出されました");
+  createCanvas(windowWidth, windowHeight);
+   
   cvs = createCanvas(windowWidth, windowHeight, WEBGL);
 
   cvs.elt.style.position = "absolute";
